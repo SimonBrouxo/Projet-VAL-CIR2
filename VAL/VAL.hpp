@@ -21,7 +21,8 @@ class Rame : Metro {
 		int vitesse;
 		int nb_passagers;
 	public:
-
+		void acceleration(int vitesse, int distance);
+		void deceleration(int vitesse, int distance);
 };
 
 class Superviseur {
@@ -29,5 +30,11 @@ class Superviseur {
 };
 
 class Station {
+	private:
+		string noum;
+		int id;
+		int pos_x;
+		int pos_y;
+	public:
 
 };
