@@ -12,6 +12,15 @@ Rame::Rame(int id, float x, float y, float speed, int nb_passenger) {
 	this->nb_passenger = nb_passenger;
 }
 
+void Rame::setRame_id() {
+	cout << "Numéro de la rame : ";
+	cin >> id;
+}
+
+int Rame::getRame_id() {
+	return id;
+}
+
 void Rame::setRame_xy() {
 	cout << "Position de la rame : ";
 	cin >> pos_x >> pos_y;
@@ -23,15 +32,6 @@ float Rame::getRame_x() {
 
 float Rame::getRame_y() {
 	return pos_y;
-}
-
-void Rame::setRame_id() {
-	cout << "Numéro de la rame : ";
-	cin >> id;
-}
-
-int Rame::getRame_id() {
-	return id;
 }
 
 void Rame::setRame_speed() {
@@ -52,20 +52,24 @@ int Rame::getRame_nb_passenger() {
 	return nb_passenger;
 }
 
-float Rame::Rame_acceleration(float vitesse, float distance) {
-
+void Rame::setRame() {
+	cout << "Numéro de la rame : ";
+	cin >> id;
+	cout << "Position de la rame : ";
+	cin >> pos_x >> pos_y;
+	cout << "vitesse de la rame : ";
+	cin >> speed;
+	cout << "Nombre de passagers : ";
+	cin >> nb_passenger;
 }
 
-float Rame::Rame_deceleration(float vitesse, float distance) {
-
-}
 
 void Rame::printRame_stats() {
 	cout <<
 		"La rame " << getRame_id() <<
-		" se trouve en : (" << getRame_x() << "," << getRame_y() << ")" <<
-		" avec " << getRame_nb_passenger() << " passagers" <<
-		" et se déplace à " << getRame_speed() << "km/h" << endl;
+		" en : (" << getRame_x() << "," << getRame_y() << ")" <<
+		" se déplace à " << getRame_speed() << "km/h" <<
+		" avec " << getRame_nb_passenger() << " passagers" << endl;
 }
 
 /**********************************************************************************/

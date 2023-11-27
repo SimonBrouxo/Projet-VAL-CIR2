@@ -34,6 +34,7 @@ class Rame {
 		float getRame_speed();
 		void setRame_nb_passenger();
 		int getRame_nb_passenger();
+		void setRame();
 		void printRame_stats();
 		
 		// Action
