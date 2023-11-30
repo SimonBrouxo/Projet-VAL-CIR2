@@ -35,7 +35,7 @@ float Rame::getRame_y() {
 }
 
 void Rame::setRame_speed() {
-	cout << "vitesse de la rame : ";
+	cout << "Vitesse de la rame : ";
 	cin >> speed;
 }
 
@@ -57,7 +57,7 @@ void Rame::setRame() {
 	cin >> id;
 	cout << "Position de la rame : ";
 	cin >> pos_x >> pos_y;
-	cout << "vitesse de la rame : ";
+	cout << "Vitesse de la rame : ";
 	cin >> speed;
 	cout << "Nombre de passagers : ";
 	cin >> nb_passenger;
@@ -69,7 +69,7 @@ void Rame::printRame_stats() {
 		"La rame " << getRame_id() <<
 		" en : (" << getRame_x() << "," << getRame_y() << ")" <<
 		" se déplace à " << getRame_speed() << "km/h" <<
-		" avec " << getRame_nb_passenger() << " passagers" << endl;
+		" avec " << getRame_nb_passenger() << " passagers." << endl;
 }
 
 /**********************************************************************************/
@@ -86,7 +86,8 @@ Station::Station(string noun, int id, int x, int y, int, int nb_people) {
 
 void Station::setStation_noun() {
 	cout << "Nom de la station : ";
-	cin >> noun;
+	string noun;
+	getline(cin,noun);
 }
 
 string Station::getStation_noun() {
@@ -122,4 +123,22 @@ void Station::setStation_nb_people() {
 
 int Station::getStation_nb_people(){
 	return nb_people;
+}
+
+void Station::setStation() {
+	cout << "Nom de la station : ";
+	cin >> noun;
+	cout << "Numéro de la station : ";
+	cin >> id;
+	cout << "Position de la station : ";
+	cin >> pos_x >> pos_y;
+	cout << "Nombre de personne dans la station : ";
+	cin >> nb_people;
+}
+
+void Station::printStation_stats() {
+	cout << "La station " << getStation_noun() <<
+		" numéro " << getStation_id() <<
+		" en (" << getStation_x() << "," << getStation_y() << ")" <<
+		" regroupe " << getStation_nb_people() << " personnes." << endl;
 }

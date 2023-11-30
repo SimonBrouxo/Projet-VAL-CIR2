@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <locale>
+#include <string>
 
 #define NB_MAX_RAME 10
 
@@ -23,8 +24,6 @@ class Rame {
 		Rame(int id, float x, float y, float speed, int nb_passenger);
 		
 		// Setter / Getter
-		
-		// Stats
 		void setRame_xy();
 		float getRame_x();
 		float getRame_y();
@@ -37,7 +36,7 @@ class Rame {
 		void setRame();
 		void printRame_stats();
 		
-		// Action
+		// Méthodes
 		float Rame_acceleration(float vitesse, float distance);
 		float Rame_deceleration(float vitesse, float distance);
 };
@@ -68,4 +67,6 @@ class Station {
 		int getStation_y();
 		void setStation_nb_people();
 		int getStation_nb_people();
+		void setStation();
+		void printStation_stats();
 };
