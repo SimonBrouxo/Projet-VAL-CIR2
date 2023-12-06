@@ -61,6 +61,7 @@ void Rame::setRame() {
 	cin >> speed;
 	cout << "Nombre de passagers : ";
 	cin >> nb_passenger;
+	cout << endl;
 }
 
 
@@ -76,7 +77,7 @@ void Rame::printRame_stats() {
 /*******************************    Station     ***********************************/
 /**********************************************************************************/
 
-Station::Station(string noun, int id, int x, int y, int, int nb_people) {
+Station::Station(string noun, int id, int x, int y, int nb_people) {
 	this->noun = noun;
 	this->id = id;
 	this->pos_x = x;
@@ -134,6 +135,7 @@ void Station::setStation() {
 	cin >> pos_x >> pos_y;
 	cout << "Nombre de personne dans la station : ";
 	cin >> nb_people;
+	cout << endl;
 }
 
 void Station::printStation_stats() {
@@ -141,4 +143,21 @@ void Station::printStation_stats() {
 		" numéro " << getStation_id() <<
 		" en (" << getStation_x() << "," << getStation_y() << ")" <<
 		" regroupe " << getStation_nb_people() << " personnes." << endl;
+}
+
+/**********************************************************************************/
+/*****************************    Superviseur     *********************************/
+/**********************************************************************************/
+
+Superviseur::Superviseur(int nbStation, int nbRame) {
+	this->nbStation = nbStation;
+	this->nbRame = nbRame;
+}
+
+int Superviseur::getNbStation() {
+	return nbStation;
+}
+
+int Superviseur::getNbRame() {
+	return nbRame;
 }

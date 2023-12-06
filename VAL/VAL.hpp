@@ -1,14 +1,23 @@
 ﻿#pragma once
-
 #include <iostream>
 #include <cstdlib>
 #include <locale>
 #include <string>
+#include <map>
+#include <vector>
 
-#define NB_MAX_RAME 10
+#include <SFML/Graphics.hpp>
+#include<SFML/Audio.hpp>
+
 
 using namespace std;
+using namespace sf;
 
+#define _PATH_IMG_ "C:/Program Files/SFML/img/"
+const string path_image(_PATH_IMG_);
+
+const int WIN_WIDTH = 800;
+const int WIN_HEIGHT = 600;
 
 class Rame {
 	private:
@@ -42,7 +51,18 @@ class Rame {
 };
 
 class Superviseur {
+	private:
+		int nbStation;
+		int nbRame;
+	public:
 
+		// Constructeur
+		Superviseur() {};
+		Superviseur(int nbStation, int nbRame);
+
+		// Setter / getter
+		int getNbStation();
+		int getNbRame();
 };
 
 class Station {
@@ -55,7 +75,7 @@ class Station {
 	public:
 		// Construtor
 		Station() {};
-		Station(string noun, int id, int x, int y, int, int nb_people);
+		Station(string noun, int id, int x, int y, int nb_people);
 
 		// Setter / Getters
 		void setStation_noun();
