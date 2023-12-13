@@ -44,10 +44,14 @@ int main()
     /**********************************     Stations     *****************************************/
 
 
-    // Création de la map stations qui contiendra tous les stations dans l'ordre
+    // Création de la map stations qui contiendra tous les stations dans l'ordre et stations_coord qui contient les coordonnées des stations dans l'ordre
     cout << "\tCréation des Stations" << endl << endl << "Vous allez créer vos stations avec les paramètres de votre choix." << endl << endl;
-    map<int, string> stations;
+    map<int, string> stations; // noms de stations par id de stations
     map<int, string>::iterator cible_s;
+    map<int, float> stations_coord_x; // coordonnées x par id de stations
+    map<int, float>::iterator cible_s_coord_x;
+    map<int, float> stations_coord_y; // coordonnées y par id de stations
+    map<int, float>::iterator cible_s_coord_y;
 
     // On remplit la map avec l'id de la station et son nom
     for (int i = 0;i < nbStation;i++) 
@@ -56,13 +60,17 @@ int main()
 	    Station station; // création d'une station
 	    station.setStation(); // on donne les paramètres de la station (nom,position...)
         stations.insert(pair<int, string>(station.getStation_id(), station.getStation_noun())); // on insert dans la map, l'id et le nom de la station
+        stations_coord_x.insert(pair<int, float>(station.getStation_id(), station.getStation_x()));
+        stations_coord_y.insert(pair<int, float>(station.getStation_id(), station.getStation_y()));
     }
+
+    // Création de la map stations_coord qui contient les coordonnées des stations dans l'ordre
 
     // On affiche les stations dans l'ordre
     cout << "Votre métro contient les " << stations.size() << " stations suivantes : " << endl;
     for (cible_s = stations.begin();cible_s != stations.end();cible_s++)
     {
-        cout << "- " << cible_s->first << " " << cible_s->second << endl;
+        cout << "- " << cible_s->first << " " << cible_s->second << endl; // donne le numéro de la station et son nom
     }
     cout << endl;
 
@@ -91,7 +99,6 @@ int main()
     }
     cout << endl;
 
-	//stationA.printStation_stats();
 
     /***********************************     SFML     ******************************************/
 
@@ -102,60 +109,77 @@ int main()
     window.setVerticalSyncEnabled(true);
 
     // Création des textures/sprites avec leur chargement
-    Texture textureTrain, textureBackground, textureDrapeau;
-    Sprite spriteTrain, spriteBackground, spriteDrapeau1, spriteDrapeau2, spriteDrapeau3;
+    Texture textureRame, textureBackground, textureStation;
+    Sprite spriteRame, spriteBackground, spriteStation, spriteStation1, spriteStation2, spriteStation3;
 
     // Chargement des images + erreur
-    if (!textureTrain.loadFromFile(path_image + "train.png") || !textureBackground.loadFromFile(path_image + "background.png") || !textureDrapeau.loadFromFile(path_image + "drapeau.png"))
+    if (!textureRame.loadFromFile(path_image + "rame.png") || !textureBackground.loadFromFile(path_image + "background.png") || !textureStation.loadFromFile(path_image + "station.png"))
     {
         cerr << "Erreur de chargement d'image" << endl;
         return EXIT_FAILURE;
     }
+
     // Background
     spriteBackground.setTexture(textureBackground);
-    // Train
-    spriteTrain.setTexture(textureTrain);
-    spriteTrain.setScale(-0.5f, 0.5f);      // on met des (-) pour retourner le train 
-    // Drapeaux
-    spriteDrapeau1.setTexture(textureDrapeau);
-    spriteDrapeau1.setScale(0.04f, 0.04f);
-    spriteDrapeau2.setTexture(textureDrapeau);
-    spriteDrapeau2.setScale(0.04f, 0.04f);
-    spriteDrapeau3.setTexture(textureDrapeau);
-    spriteDrapeau3.setScale(0.04f, 0.04f);
+    spriteBackground.setScale(WIN_SIZE.x, WIN_SIZE.y);
 
+    // Rame
+    spriteRame.setTexture(textureRame);
+    spriteRame.setScale(0.1f, 0.1f);
 
+    // Stations
+    spriteStation.setTexture(textureStation);
+    spriteStation.setScale(0.1f, 0.1f);
 
-
-
+    /*
+    Note 
+    
+    On va utiliser les framerate pour accélérer et ralentir les rame
+    
+    */
 
     // Affichage de la fenêtre
     while (window.isOpen()) // Boucle principale
     {
         Event event; // Evènement dans la fenêtre        
+        // Vérification des entrées clavier
         while (window.pollEvent(event)) // Boucle qui va regarder chaque évènement dans la fenêtre
         {
-            // Vérification des entrées clavier
             InputHandler(event, window);
         }
 
-        spriteTrain.move(Vector2f(1, 0));
+        // On bouge le train (sert juste à voir si le programme toune...)
+        spriteRame.move(Vector2f(1, 0));
 
+        // On récupère les coordonnées x des stations
+        vector<float>coord_x;
+        for (cible_s_coord_x = stations_coord_x.begin();cible_s_coord_x != stations_coord_x.end();cible_s_coord_x++) // on parcours tous les éléments de l'itérateur de stations pour les x
+        {
+            coord_x.push_back(cible_s_coord_x->second); // on range les x en fin du vecteur (pour l'ordre), celui-ci contient les éléments seconds de la map, autrement dit les x
+        }
 
-        spriteDrapeau1.setPosition(200, 200);
-        spriteDrapeau2.setPosition(500, 200);
-        spriteDrapeau3.setPosition(700, 100);
+        // On récupère les coordonnées y des stations (même méthodes que pour les x)
+        vector<float>coord_y;
+        for (cible_s_coord_y = stations_coord_y.begin();cible_s_coord_y != stations_coord_y.end();cible_s_coord_y++)
+        {
+            coord_y.push_back(cible_s_coord_y->second);
+        }
 
         window.clear(); // on a une fenêtre vide
 
         // On dessine tous les éléments dans la fenêtre
         window.draw(spriteBackground);
-        window.draw(spriteTrain);
-        window.draw(spriteDrapeau1);
-        window.draw(spriteDrapeau2);
-        window.draw(spriteDrapeau3);
+        window.draw(spriteRame);
 
-
+        vector<Vector2f>coord_stations;
+        auto ity = coord_y.begin();
+        for (const auto& elem : coord_x)
+        {
+            spriteStation.setPosition(elem, (float)*ity); // on a le sprite au bonne endroit
+            coord_stations.push_back(spriteStation.getPosition()); // on récup les coord DU SPRITE
+            window.draw(spriteStation);
+            ity++;
+        }
 
         window.display(); // à la fin de la boucle principale pour tout afficher à l'écran
     }

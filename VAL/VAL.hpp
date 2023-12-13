@@ -16,8 +16,8 @@ using namespace sf;
 #define _PATH_IMG_ "C:/Program Files/SFML/img/"
 const string path_image(_PATH_IMG_);
 
-const int WIN_WIDTH = 800;
-const int WIN_HEIGHT = 600;
+const int WIN_WIDTH = 1200;
+const int WIN_HEIGHT = 800;
 
 class Rame {
 	private:
@@ -69,13 +69,13 @@ class Station {
 	private:
 		string noun;
 		int id;
-		int pos_x;
-		int pos_y;
+		float pos_x;
+		float pos_y;
 		int nb_people;
 	public:
 		// Construtor
 		Station() {};
-		Station(string noun, int id, int x, int y, int nb_people);
+		Station(string noun, int id, float x, float y, int nb_people);
 
 		// Setter / Getters
 		void setStation_noun();
@@ -83,8 +83,9 @@ class Station {
 		void setStation_id();
 		int getStation_id();
 		void setStation_xy();
-		int getStation_x();
-		int getStation_y();
+		float getStation_x();
+		float getStation_y();
+		Vector2f getStation_xy();
 		void setStation_nb_people();
 		int getStation_nb_people();
 		void setStation();

@@ -1,8 +1,10 @@
 ﻿#include "VAL.hpp"
 
+
 /**********************************************************************************/
 /*******************************      Rame      ***********************************/
 /**********************************************************************************/
+
 
 Rame::Rame(int id, float x, float y, float speed, int nb_passenger) {
 	this->id = id;
@@ -55,15 +57,16 @@ int Rame::getRame_nb_passenger() {
 void Rame::setRame() {
 	cout << "Numéro de la rame : ";
 	cin >> id;
+	/*
 	cout << "Position de la rame : ";
 	cin >> pos_x >> pos_y;
+	*/
 	cout << "Vitesse de la rame : ";
 	cin >> speed;
 	cout << "Nombre de passagers : ";
 	cin >> nb_passenger;
 	cout << endl;
 }
-
 
 void Rame::printRame_stats() {
 	cout <<
@@ -73,11 +76,13 @@ void Rame::printRame_stats() {
 		" avec " << getRame_nb_passenger() << " passagers." << endl;
 }
 
+
 /**********************************************************************************/
 /*******************************    Station     ***********************************/
 /**********************************************************************************/
 
-Station::Station(string noun, int id, int x, int y, int nb_people) {
+
+Station::Station(string noun, int id, float x, float y, int nb_people) {
 	this->noun = noun;
 	this->id = id;
 	this->pos_x = x;
@@ -109,12 +114,16 @@ void Station::setStation_xy() {
 	cin >> pos_x >> pos_y;
 }
 
-int Station::getStation_x() {
+float Station::getStation_x() {
 	return pos_x;
 }
 
-int Station::getStation_y() {
+float Station::getStation_y() {
 	return pos_y;
+}
+
+Vector2f Station::getStation_xy() {
+	return Vector2f(pos_x, pos_y);
 }
 
 void Station::setStation_nb_people() {
@@ -145,9 +154,11 @@ void Station::printStation_stats() {
 		" regroupe " << getStation_nb_people() << " personnes." << endl;
 }
 
+
 /**********************************************************************************/
 /*****************************    Superviseur     *********************************/
 /**********************************************************************************/
+
 
 Superviseur::Superviseur(int nbStation, int nbRame) {
 	this->nbStation = nbStation;
