@@ -172,3 +172,13 @@ int Superviseur::getNbStation() {
 int Superviseur::getNbRame() {
 	return nbRame;
 }
+
+// Gestion des evenement et des inputs
+void InputHandler(Event event, RenderWindow& window)
+{
+	// On teste si on clique sur la croix
+	if (event.type == sf::Event::Closed)
+	{
+		window.close();
+	}
+}

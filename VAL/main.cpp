@@ -1,20 +1,5 @@
 #include "VAL.hpp"
 
-
-// Prototypes des fonctions
-void InputHandler(Event event, RenderWindow& window);
-
-// Gestion des evenement et des inputs
-void InputHandler(Event event, RenderWindow& window)
-{
-    // On teste si on clique sur la croix
-    if (event.type == sf::Event::Closed)
-    {
-        window.close();
-    }
-}
-
-
 /*******************************************************************************************/
 /***********************************     SFML     ******************************************/
 /*******************************************************************************************/
@@ -80,7 +65,11 @@ int main()
 
     // Création du set rames qui contiendra tous les rames dans l'ordre
     cout << "\tCréation des Rames" << endl << endl << "Vous allez ajouter les rames dans votre métro." << endl << endl;
-    set<int> rames;
+    set<int> rames; // Ordre des rames
+    map<int, float>rames_coord_x; // coord x par id de rames
+    map<int, float>::iterator cible_r_coord_x;
+    map<int, float>rames_coord_y; // coord y par id de rames
+    map<int, float>::iterator cible_r_coord_y;
 
     // On remplit le vecteur avec tous les rames
     for (int i = 0;i < nbRame;i++)
@@ -89,6 +78,8 @@ int main()
         Rame rame; // création d'une rame
         rame.setRame(); // on donne les paramètres de la rame
         rames.insert(rame.getRame_id()); // on récupère l'id pour la mettre dans le set
+        rames_coord_x.insert(pair<int, float>(rame.getRame_id(), rame.getRame_x()));
+        rames_coord_y.insert(pair<int, float>(rame.getRame_id(), rame.getRame_y()));
     }
 
     // On affiche les rames dans l'ordre
@@ -129,7 +120,7 @@ int main()
 
     // Stations
     spriteStation.setTexture(textureStation);
-    spriteStation.setScale(0.1f, 0.1f);
+    spriteStation.setScale(0.2f, 0.2f);
 
     /*
     Note 
@@ -141,16 +132,23 @@ int main()
     // Affichage de la fenêtre
     while (window.isOpen()) // Boucle principale
     {
-        Event event; // Evènement dans la fenêtre        
+
         // Vérification des entrées clavier
+        Event event; // Evènement dans la fenêtre        
         while (window.pollEvent(event)) // Boucle qui va regarder chaque évènement dans la fenêtre
         {
             InputHandler(event, window);
         }
 
+
+        // Gestion des Rames
+        // 
         // On bouge le train (sert juste à voir si le programme toune...)
         spriteRame.move(Vector2f(1, 0));
 
+
+        // Gestion des Stations
+        // 
         // On récupère les coordonnées x des stations
         vector<float>coord_x;
         for (cible_s_coord_x = stations_coord_x.begin();cible_s_coord_x != stations_coord_x.end();cible_s_coord_x++) // on parcours tous les éléments de l'itérateur de stations pour les x
@@ -165,12 +163,19 @@ int main()
             coord_y.push_back(cible_s_coord_y->second);
         }
 
-        window.clear(); // on a une fenêtre vide
+
+        // On "nettoie" la fenêtre (littéralement...) pour qu'elle soit vide
+        window.clear();
 
         // On dessine tous les éléments dans la fenêtre
+        // 
+        // Background
         window.draw(spriteBackground);
+
+        // Rames
         window.draw(spriteRame);
 
+        // Stations
         vector<Vector2f>coord_stations;
         auto ity = coord_y.begin();
         for (const auto& elem : coord_x)

@@ -91,3 +91,6 @@ class Station {
 		void setStation();
 		void printStation_stats();
 };
+
+// Prototypes des fonctions
+void InputHandler(Event event, RenderWindow& window);
