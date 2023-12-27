@@ -2,82 +2,6 @@
 
 
 /**********************************************************************************/
-/*******************************      Rame      ***********************************/
-/**********************************************************************************/
-
-
-Rame::Rame(int id, float x, float y, float speed, int nb_passenger) {
-	this->id = id;
-	this->pos_x = x;
-	this->pos_y = y;
-	this->speed = speed;
-	this->nb_passenger = nb_passenger;
-}
-
-void Rame::setRame_id() {
-	cout << "Numéro de la rame : ";
-	cin >> id;
-}
-
-int Rame::getRame_id() {
-	return id;
-}
-
-void Rame::setRame_xy() {
-	cout << "Position de la rame : ";
-	cin >> pos_x >> pos_y;
-}
-
-float Rame::getRame_x() {
-	return pos_x;
-}
-
-float Rame::getRame_y() {
-	return pos_y;
-}
-
-void Rame::setRame_speed() {
-	cout << "Vitesse de la rame : ";
-	cin >> speed;
-}
-
-float Rame::getRame_speed() {
-	return speed;
-}
-
-void Rame::setRame_nb_passenger() {
-	cout << "Nombre de passagers : ";
-	cin >> nb_passenger;
-}
-
-int Rame::getRame_nb_passenger() {
-	return nb_passenger;
-}
-
-void Rame::setRame() {
-	cout << "Numéro de la rame : ";
-	cin >> id;
-	/*
-	cout << "Position de la rame : ";
-	cin >> pos_x >> pos_y;
-	*/
-	cout << "Vitesse de la rame : ";
-	cin >> speed;
-	cout << "Nombre de passagers : ";
-	cin >> nb_passenger;
-	cout << endl;
-}
-
-void Rame::printRame_stats() {
-	cout <<
-		"La rame " << getRame_id() <<
-		" en : (" << getRame_x() << "," << getRame_y() << ")" <<
-		" se déplace à " << getRame_speed() << "km/h" <<
-		" avec " << getRame_nb_passenger() << " passagers." << endl;
-}
-
-
-/**********************************************************************************/
 /*******************************    Station     ***********************************/
 /**********************************************************************************/
 
@@ -156,6 +80,82 @@ void Station::printStation_stats() {
 
 
 /**********************************************************************************/
+/*******************************      Rame      ***********************************/
+/**********************************************************************************/
+
+
+Rame::Rame(int id, float x, float y, float speed, int nb_passenger) {
+	this->id = id;
+	this->pos_x = x;
+	this->pos_y = y;
+	this->speed = speed;
+	this->nb_passenger = nb_passenger;
+}
+
+void Rame::setRame_id() {
+	cout << "Numéro de la rame : ";
+	cin >> id;
+}
+
+int Rame::getRame_id() {
+	return id;
+}
+
+void Rame::setRame_xy() {
+	cout << "Position de la rame : ";
+	cin >> pos_x >> pos_y;
+}
+
+float Rame::getRame_x() {
+	return pos_x;
+}
+
+float Rame::getRame_y() {
+	return pos_y;
+}
+
+void Rame::setRame_speed() {
+	cout << "Vitesse de la rame : ";
+	cin >> speed;
+}
+
+float Rame::getRame_speed() {
+	return speed;
+}
+
+void Rame::setRame_nb_passenger() {
+	cout << "Nombre de passagers : ";
+	cin >> nb_passenger;
+}
+
+int Rame::getRame_nb_passenger() {
+	return nb_passenger;
+}
+
+void Rame::setRame() {
+	cout << "Numéro de la rame : ";
+	cin >> id;
+	/*
+	cout << "Position de la rame : ";
+	cin >> pos_x >> pos_y;
+	cout << "Vitesse de la rame : ";
+	cin >> speed;
+	*/
+	cout << "Nombre de passagers : ";
+	cin >> nb_passenger;
+	cout << endl;
+}
+
+void Rame::printRame_stats() {
+	cout <<
+		"La rame " << getRame_id() <<
+		" en : (" << getRame_x() << "," << getRame_y() << ")" <<
+		" se déplace à " << getRame_speed() << "km/h" <<
+		" avec " << getRame_nb_passenger() << " passagers." << endl;
+}
+
+
+/**********************************************************************************/
 /*****************************    Superviseur     *********************************/
 /**********************************************************************************/
 
@@ -173,6 +173,8 @@ int Superviseur::getNbRame() {
 	return nbRame;
 }
 
+
+
 // Gestion des evenement et des inputs
 void InputHandler(Event event, RenderWindow& window)
 {
@@ -181,4 +183,11 @@ void InputHandler(Event event, RenderWindow& window)
 	{
 		window.close();
 	}
+}
+
+float distance(Vector2f& v1, Vector2f& v2) 
+{
+	float dx = v2.x - v1.x;
+	float dy = v2.y - v1.y;
+	return sqrt(dx * dx + dy * dy);
 }

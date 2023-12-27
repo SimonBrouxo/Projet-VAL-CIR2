@@ -9,18 +9,16 @@ int main()
 {
     locale::global(locale{ "fr-FR" });
 
+    cout << "\t---- Projet VAL ----" << endl << endl << "Ce projet consiste à refaire un métro." << endl << endl;
 
     /**********************************     Setup     ******************************************/
-	
 
     int nbStation = 0;
     int nbRame = 0;
 
     // Présentation du projet et initialisation du metro (nb de stations/rames)
-    cout << "\t---- Projet VAL ----" << endl << endl <<"Ce projet consiste à refaire un métro." << endl << endl << "Donnez le nombre de station : ";
-    cin >> nbStation;
-    cout << "Donnez le nombre de rame : ";
-    cin >> nbRame;
+    cout << "Donnez le nombre de station : "; cin >> nbStation;
+    cout << "Donnez le nombre de rame : "; cin >> nbRame;
     cout << "Création du métro..." << endl;
     Superviseur superviseur(nbStation, nbRame);
     cout << "Votre métro contient : " << endl << "- " << superviseur.getNbStation() << " stations" << endl << "- " << superviseur.getNbRame() << " rames" << endl << endl;
@@ -34,9 +32,7 @@ int main()
     map<int, string> stations; // noms de stations par id de stations
     map<int, string>::iterator cible_s;
     map<int, float> stations_coord_x; // coordonnées x par id de stations
-    map<int, float>::iterator cible_s_coord_x;
     map<int, float> stations_coord_y; // coordonnées y par id de stations
-    map<int, float>::iterator cible_s_coord_y;
 
     // On remplit la map avec l'id de la station et son nom
     for (int i = 0;i < nbStation;i++) 
@@ -49,15 +45,27 @@ int main()
         stations_coord_y.insert(pair<int, float>(station.getStation_id(), station.getStation_y()));
     }
 
-    // Création de la map stations_coord qui contient les coordonnées des stations dans l'ordre
-
     // On affiche les stations dans l'ordre
     cout << "Votre métro contient les " << stations.size() << " stations suivantes : " << endl;
-    for (cible_s = stations.begin();cible_s != stations.end();cible_s++)
-    {
-        cout << "- " << cible_s->first << " " << cible_s->second << endl; // donne le numéro de la station et son nom
-    }
+    for (cible_s = stations.begin(); cible_s != stations.end(); cible_s++) { cout << "- " << cible_s->first << " " << cible_s->second << endl; }// donne le numéro de la station et son nom
     cout << endl;
+
+    // On récupère les coordonnées x et y des stations
+    map<int, float>::iterator cible_s_coord_x;
+    map<int, float>::iterator cible_s_coord_y;
+    vector<float>coord_x_s;
+    vector<float>coord_y_s;
+    vector<float>::iterator cible_coord_x_s;
+    vector<float>::iterator cible_coord_y_s;
+
+    for (cible_s_coord_x = stations_coord_x.begin();cible_s_coord_x != stations_coord_x.end();cible_s_coord_x++) // on parcours tous les éléments de l'itérateur de stations pour les x
+    {
+        coord_x_s.push_back(cible_s_coord_x->second); // on range les x en fin du vecteur (pour l'ordre), celui-ci contient les éléments seconds de la map, autrement dit les x
+    }
+    for (cible_s_coord_y = stations_coord_y.begin();cible_s_coord_y != stations_coord_y.end();cible_s_coord_y++)
+    {
+        coord_y_s.push_back(cible_s_coord_y->second);
+    }
 
 
     /**********************************     Rames     *****************************************/
@@ -66,10 +74,6 @@ int main()
     // Création du set rames qui contiendra tous les rames dans l'ordre
     cout << "\tCréation des Rames" << endl << endl << "Vous allez ajouter les rames dans votre métro." << endl << endl;
     set<int> rames; // Ordre des rames
-    map<int, float>rames_coord_x; // coord x par id de rames
-    map<int, float>::iterator cible_r_coord_x;
-    map<int, float>rames_coord_y; // coord y par id de rames
-    map<int, float>::iterator cible_r_coord_y;
 
     // On remplit le vecteur avec tous les rames
     for (int i = 0;i < nbRame;i++)
@@ -78,16 +82,11 @@ int main()
         Rame rame; // création d'une rame
         rame.setRame(); // on donne les paramètres de la rame
         rames.insert(rame.getRame_id()); // on récupère l'id pour la mettre dans le set
-        rames_coord_x.insert(pair<int, float>(rame.getRame_id(), rame.getRame_x()));
-        rames_coord_y.insert(pair<int, float>(rame.getRame_id(), rame.getRame_y()));
     }
 
     // On affiche les rames dans l'ordre
     cout << "Votre métro contient les " << rames.size() << " rames suivantes : " << endl;
-    for (const auto& elem :rames)
-    {
-        cout << "- " << elem << endl;
-    }
+    for (const auto& elem : rames) { cout << "- " << elem << endl; }
     cout << endl;
 
 
@@ -117,17 +116,12 @@ int main()
     // Rame
     spriteRame.setTexture(textureRame);
     spriteRame.setScale(0.1f, 0.1f);
+    spriteRame.setPosition(Vector2f(*coord_x_s.begin(), *coord_y_s.begin()));
 
     // Stations
     spriteStation.setTexture(textureStation);
     spriteStation.setScale(0.2f, 0.2f);
 
-    /*
-    Note 
-    
-    On va utiliser les framerate pour accélérer et ralentir les rame
-    
-    */
 
     // Affichage de la fenêtre
     while (window.isOpen()) // Boucle principale
@@ -140,52 +134,44 @@ int main()
             InputHandler(event, window);
         }
 
-
-        // Gestion des Rames
-        // 
-        // On bouge le train (sert juste à voir si le programme toune...)
-        spriteRame.move(Vector2f(1, 0));
+        window.clear(); // On "nettoie" la fenêtre (littéralement...) pour qu'elle soit vide
+        window.draw(spriteBackground); // on dessine le background
+        window.draw(spriteRame); // On dessine la rame
 
 
-        // Gestion des Stations
-        // 
-        // On récupère les coordonnées x des stations
-        vector<float>coord_x;
-        for (cible_s_coord_x = stations_coord_x.begin();cible_s_coord_x != stations_coord_x.end();cible_s_coord_x++) // on parcours tous les éléments de l'itérateur de stations pour les x
+        // On place toutes les stations
+        for (size_t i = 0; i < coord_x_s.size(); i++)
         {
-            coord_x.push_back(cible_s_coord_x->second); // on range les x en fin du vecteur (pour l'ordre), celui-ci contient les éléments seconds de la map, autrement dit les x
-        }
-
-        // On récupère les coordonnées y des stations (même méthodes que pour les x)
-        vector<float>coord_y;
-        for (cible_s_coord_y = stations_coord_y.begin();cible_s_coord_y != stations_coord_y.end();cible_s_coord_y++)
-        {
-            coord_y.push_back(cible_s_coord_y->second);
-        }
-
-
-        // On "nettoie" la fenêtre (littéralement...) pour qu'elle soit vide
-        window.clear();
-
-        // On dessine tous les éléments dans la fenêtre
-        // 
-        // Background
-        window.draw(spriteBackground);
-
-        // Rames
-        window.draw(spriteRame);
-
-        // Stations
-        vector<Vector2f>coord_stations;
-        auto ity = coord_y.begin();
-        for (const auto& elem : coord_x)
-        {
-            spriteStation.setPosition(elem, (float)*ity); // on a le sprite au bonne endroit
-            coord_stations.push_back(spriteStation.getPosition()); // on récup les coord DU SPRITE
+            spriteStation.setPosition(coord_x_s[i], coord_y_s[i]);
             window.draw(spriteStation);
-            ity++;
         }
 
+
+        for (size_t i = 0; i < coord_x_s.size() - 1; i++)
+        {
+            Vector2f positionActuelle = spriteRame.getPosition();
+            Vector2f positionCible = Vector2f(coord_x_s[i + 1], coord_y_s[i + 1]);
+            Vector2f direction = positionCible - positionActuelle;
+            float distance_station = distance(positionActuelle, positionCible);
+
+            // On se déplace
+            if (distance_station != 0)
+            {
+                direction = direction / distance_station;
+                spriteRame.move(direction * 0.5f);
+            }
+            // On est arrivé à la station
+            else
+            {
+                if (cible_coord_x_s != coord_x_s.end() && cible_coord_y_s != coord_y_s.end())
+                {
+                    cible_coord_x_s++;
+                    cible_coord_y_s++;
+                }
+            }
+        }
+
+  
         window.display(); // à la fin de la boucle principale pour tout afficher à l'écran
     }
 

@@ -1,1 +1,1 @@
-﻿add_executable(testSFML "testSFML.cpp" "testSFML.hpp")
+﻿add_executable(testSFML "main.cpp" "testSFML.cpp")

@@ -7,7 +7,7 @@
 #include <vector>
 
 #include <SFML/Graphics.hpp>
-#include<SFML/Audio.hpp>
+#include <SFML/Audio.hpp>
 
 
 using namespace std;
@@ -18,6 +18,45 @@ const string path_image(_PATH_IMG_);
 
 const int WIN_WIDTH = 1200;
 const int WIN_HEIGHT = 800;
+
+
+/**********************************************************************************/
+/*******************************    Station     ***********************************/
+/**********************************************************************************/
+
+
+class Station {
+	private:
+		string noun;
+		int id;
+		float pos_x;
+		float pos_y;
+		int nb_people;
+	public:
+		// Construtor
+		Station() {};
+		Station(string noun, int id, float x, float y, int nb_people);
+
+		// Setter / Getters
+		void setStation_noun();
+		string getStation_noun();
+		void setStation_id();
+		int getStation_id();
+		void setStation_xy();
+		float getStation_x();
+		float getStation_y();
+		Vector2f getStation_xy();
+		void setStation_nb_people();
+		int getStation_nb_people();
+		void setStation();
+		void printStation_stats();
+};
+
+
+/**********************************************************************************/
+/*******************************      Rame      ***********************************/
+/**********************************************************************************/
+
 
 class Rame {
 	private:
@@ -50,6 +89,12 @@ class Rame {
 		float Rame_deceleration(float vitesse, float distance);
 };
 
+
+/**********************************************************************************/
+/*****************************    Superviseur     *********************************/
+/**********************************************************************************/
+
+
 class Superviseur {
 	private:
 		int nbStation;
@@ -65,32 +110,7 @@ class Superviseur {
 		int getNbRame();
 };
 
-class Station {
-	private:
-		string noun;
-		int id;
-		float pos_x;
-		float pos_y;
-		int nb_people;
-	public:
-		// Construtor
-		Station() {};
-		Station(string noun, int id, float x, float y, int nb_people);
-
-		// Setter / Getters
-		void setStation_noun();
-		string getStation_noun();
-		void setStation_id();
-		int getStation_id();
-		void setStation_xy();
-		float getStation_x();
-		float getStation_y();
-		Vector2f getStation_xy();
-		void setStation_nb_people();
-		int getStation_nb_people();
-		void setStation();
-		void printStation_stats();
-};
 
 // Prototypes des fonctions
 void InputHandler(Event event, RenderWindow& window);
+float distance(Vector2f& v1, Vector2f& v2);

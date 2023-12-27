@@ -1,86 +1,184 @@
-﻿#include "testSFML.hpp"
+#include "testSFML.hpp"
 
-// Prototypes des fonctions
-void InputHandler(Event event, RenderWindow& window);
 
-// Gestion des evenement et des inputs
-void InputHandler(Event event, RenderWindow& window) 
-{
-    // On teste si on clique sur la croix
-    if (event.type == sf::Event::Closed)
-    {
-        window.close();
-    }
+/**********************************************************************************/
+/*******************************      Rame      ***********************************/
+/**********************************************************************************/
+
+
+Rame::Rame(int id, float x, float y, float speed, int nb_passenger) {
+	this->id = id;
+	this->pos_x = x;
+	this->pos_y = y;
+	this->speed = speed;
+	this->nb_passenger = nb_passenger;
+}
+
+void Rame::setRame_id() {
+	cout << "Num�ro de la rame : ";
+	cin >> id;
+}
+
+int Rame::getRame_id() {
+	return id;
+}
+
+void Rame::setRame_xy() {
+	cout << "Position de la rame : ";
+	cin >> pos_x >> pos_y;
+}
+
+float Rame::getRame_x() {
+	return pos_x;
+}
+
+float Rame::getRame_y() {
+	return pos_y;
+}
+
+void Rame::setRame_speed() {
+	cout << "Vitesse de la rame : ";
+	cin >> speed;
+}
+
+float Rame::getRame_speed() {
+	return speed;
+}
+
+void Rame::setRame_nb_passenger() {
+	cout << "Nombre de passagers : ";
+	cin >> nb_passenger;
+}
+
+int Rame::getRame_nb_passenger() {
+	return nb_passenger;
+}
+
+void Rame::setRame() {
+	cout << "Num�ro de la rame : ";
+	cin >> id;
+	/*
+	cout << "Position de la rame : ";
+	cin >> pos_x >> pos_y;
+	*/
+	cout << "Vitesse de la rame : ";
+	cin >> speed;
+	cout << "Nombre de passagers : ";
+	cin >> nb_passenger;
+	cout << endl;
+}
+
+void Rame::printRame_stats() {
+	cout <<
+		"La rame " << getRame_id() <<
+		" en : (" << getRame_x() << "," << getRame_y() << ")" <<
+		" se d�place � " << getRame_speed() << "km/h" <<
+		" avec " << getRame_nb_passenger() << " passagers." << endl;
 }
 
 
+/**********************************************************************************/
+/*******************************    Station     ***********************************/
+/**********************************************************************************/
 
-int main() 
+
+Station::Station(string noun, int id, float x, float y, int nb_people) {
+	this->noun = noun;
+	this->id = id;
+	this->pos_x = x;
+	this->pos_y = y;
+	this->nb_people = nb_people;
+}
+
+void Station::setStation_noun() {
+	cout << "Nom de la station : ";
+	string noun;
+	getline(cin, noun);
+}
+
+string Station::getStation_noun() {
+	return noun;
+}
+
+void Station::setStation_id() {
+	cout << "Num�ro de la station : ";
+	cin >> id;
+}
+
+int Station::getStation_id() {
+	return id;
+}
+
+void Station::setStation_xy() {
+	cout << "Position de la station : ";
+	cin >> pos_x >> pos_y;
+}
+
+float Station::getStation_x() {
+	return pos_x;
+}
+
+float Station::getStation_y() {
+	return pos_y;
+}
+
+Vector2f Station::getStation_xy() {
+	return Vector2f(pos_x, pos_y);
+}
+
+void Station::setStation_nb_people() {
+	cout << "Nombre de personne dans la station : ";
+	cin >> nb_people;
+}
+
+int Station::getStation_nb_people() {
+	return nb_people;
+}
+
+void Station::setStation() {
+	cout << "Nom de la station : ";
+	cin >> noun;
+	cout << "Num�ro de la station : ";
+	cin >> id;
+	cout << "Position de la station : ";
+	cin >> pos_x >> pos_y;
+	cout << "Nombre de personne dans la station : ";
+	cin >> nb_people;
+	cout << endl;
+}
+
+void Station::printStation_stats() {
+	cout << "La station " << getStation_noun() <<
+		" num�ro " << getStation_id() <<
+		" en (" << getStation_x() << "," << getStation_y() << ")" <<
+		" regroupe " << getStation_nb_people() << " personnes." << endl;
+}
+
+
+/**********************************************************************************/
+/*****************************    Superviseur     *********************************/
+/**********************************************************************************/
+
+
+Superviseur::Superviseur(int nbStation, int nbRame) {
+	this->nbStation = nbStation;
+	this->nbRame = nbRame;
+}
+
+int Superviseur::getNbStation() {
+	return nbStation;
+}
+
+int Superviseur::getNbRame() {
+	return nbRame;
+}
+
+// Gestion des evenement et des inputs
+void InputHandler(Event event, RenderWindow& window)
 {
-    // Création de la fenêtre avec la résolution, le titre de la fenêtre et la syncro verticale
-    const Vector2u WIN_SIZE(WIN_WIDTH, WIN_HEIGHT);
-    RenderWindow window(VideoMode(WIN_SIZE.x, WIN_SIZE.y), "Projet VAL !!!");
-    window.setVerticalSyncEnabled(true);
-
-
-    // Création des textures/sprites avec leur chargement
-    Texture textureTrain, textureBackground, textureDrapeau;
-    Sprite spriteTrain, spriteBackground, spriteDrapeau1, spriteDrapeau2, spriteDrapeau3;
-    
-    // Chargement des images + erreur
-    if (!textureTrain.loadFromFile(path_image+"train.png") || !textureBackground.loadFromFile(path_image+"background.png")|| !textureDrapeau.loadFromFile(path_image+"drapeau.png"))
-    {
-        cerr << "Erreur de chargement d'image" << endl;
-        return EXIT_FAILURE;
-    }
-    // Background
-    spriteBackground.setTexture(textureBackground);
-    // Train
-    spriteTrain.setTexture(textureTrain);
-    spriteTrain.setScale(-0.5f, 0.5f);      // on met des (-) pour retourner le train 
-    // Drapeaux
-    spriteDrapeau1.setTexture(textureDrapeau);
-    spriteDrapeau1.setScale(0.04f, 0.04f);
-    spriteDrapeau2.setTexture(textureDrapeau);
-    spriteDrapeau2.setScale(0.04f, 0.04f);
-    spriteDrapeau3.setTexture(textureDrapeau);
-    spriteDrapeau3.setScale(0.04f, 0.04f);
-    
-
-
-
-
-
-    // Affichage de la fenêtre
-    while (window.isOpen()) // Boucle principale
-    {
-        Event event; // Evènement dans la fenêtre        
-        while (window.pollEvent(event)) // Boucle qui va regarder chaque évènement dans la fenêtre
-        {
-            // Vérification des entrées clavier
-            InputHandler(event, window);
-        }
-
-        spriteTrain.move(Vector2f(1, 0));
-
-
-        spriteDrapeau1.setPosition(200, 200);
-        spriteDrapeau2.setPosition(500, 200);
-        spriteDrapeau3.setPosition(700, 100);
-
-        window.clear(); // on a une fenêtre vide
-
-        // On dessine tous les éléments dans la fenêtre
-        window.draw(spriteBackground);
-        window.draw(spriteTrain);
-        window.draw(spriteDrapeau1);
-        window.draw(spriteDrapeau2);
-        window.draw(spriteDrapeau3);
-
-
-
-        window.display(); // à la fin de la boucle principale pour tout afficher à l'écran
-    }
-
-    return 0;
+	// On teste si on clique sur la croix
+	if (event.type == sf::Event::Closed)
+	{
+		window.close();
+	}
 }
