@@ -85,8 +85,8 @@ class Rame {
 		void printRame_stats();
 		
 		// Méthodes
-		float Rame_acceleration(float vitesse, float distance);
-		float Rame_deceleration(float vitesse, float distance);
+		//float Rame_acceleration(float vitesse, float distance);
+		//float Rame_deceleration(float vitesse, float distance);
 };
 
 

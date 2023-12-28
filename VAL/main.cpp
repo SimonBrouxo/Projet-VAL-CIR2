@@ -17,9 +17,11 @@ int main()
     int nbRame = 0;
 
     // Présentation du projet et initialisation du metro (nb de stations/rames)
-    cout << "Donnez le nombre de station : "; cin >> nbStation;
-    cout << "Donnez le nombre de rame : "; cin >> nbRame;
-    cout << "Création du métro..." << endl;
+    cout << "Donnez le nombre de station : "; 
+    cin >> nbStation;
+    cout << "Donnez le nombre de rame : "; 
+    cin >> nbRame;
+    cout << endl;
     Superviseur superviseur(nbStation, nbRame);
     cout << "Votre métro contient : " << endl << "- " << superviseur.getNbStation() << " stations" << endl << "- " << superviseur.getNbRame() << " rames" << endl << endl;
 
@@ -47,7 +49,10 @@ int main()
 
     // On affiche les stations dans l'ordre
     cout << "Votre métro contient les " << stations.size() << " stations suivantes : " << endl;
-    for (cible_s = stations.begin(); cible_s != stations.end(); cible_s++) { cout << "- " << cible_s->first << " " << cible_s->second << endl; }// donne le numéro de la station et son nom
+    for (cible_s = stations.begin(); cible_s != stations.end(); cible_s++) 
+    { 
+        cout << "- " << cible_s->first << " " << cible_s->second << endl; // donne le numéro de la station et son nom
+    }
     cout << endl;
 
     // On récupère les coordonnées x et y des stations
@@ -103,11 +108,7 @@ int main()
     Sprite spriteRame, spriteBackground, spriteStation, spriteStation1, spriteStation2, spriteStation3;
 
     // Chargement des images + erreur
-    if (!textureRame.loadFromFile(path_image + "rame.png") || !textureBackground.loadFromFile(path_image + "background.png") || !textureStation.loadFromFile(path_image + "station.png"))
-    {
-        cerr << "Erreur de chargement d'image" << endl;
-        return EXIT_FAILURE;
-    }
+    if (!textureRame.loadFromFile(path_image + "rame.png") || !textureBackground.loadFromFile(path_image + "background.png") || !textureStation.loadFromFile(path_image + "station.png")) { cerr << "Erreur de chargement d'image" << endl; return EXIT_FAILURE; }
 
     // Background
     spriteBackground.setTexture(textureBackground);
@@ -116,98 +117,65 @@ int main()
     // Rame
     spriteRame.setTexture(textureRame);
     spriteRame.setScale(0.1f, 0.1f);
-    spriteRame.setPosition(Vector2f(coord_x_s[0], coord_y_s[0]));
+    spriteRame.setPosition(Vector2f(coord_x_s[0], coord_y_s[0])); // On place la rame à la première station
+    size_t idx_station = 0; // Pour savoir si la rame a atteint une station
+    int direction = 1; // direction = 1 si on avance pour aller vers la dernière station ou direction = -1 si on recule pour revenir à la première station 
 
-    size_t currentStationIndex = 0;
 
     // Stations
     spriteStation.setTexture(textureStation);
     spriteStation.setScale(0.2f, 0.2f);
 
-    for (int i = 0; i < coord_x_s.size(); i++)
-    {
-        cout << coord_x_s[i] << " ";
-    }
-    cout << endl;
-    for (int i = 0; i < coord_y_s.size(); i++)
-    {
-        cout << coord_y_s[i] << " ";
-    }
-    cout << endl;
 
-
-    // Affichage de la fenêtre
-    while (window.isOpen()) // Boucle principale
+    while (window.isOpen()) // Boucle principale et ouverture de la fenêtre
     {
 
         // Vérification des entrées clavier
         Event event; // Evènement dans la fenêtre        
-        while (window.pollEvent(event)) // Boucle qui va regarder chaque évènement dans la fenêtre
-        {
-            InputHandler(event, window);
-        }
+        while (window.pollEvent(event)) { InputHandler(event, window); }// Boucle qui va regarder chaque évènement dans la fenêtre
 
         window.clear(); // On "nettoie" la fenêtre (littéralement...) pour qu'elle soit vide
         window.draw(spriteBackground); // on dessine le background
-        window.draw(spriteRame); // On dessine la rame
 
 
         // On dessine toutes les stations
-        for (size_t i = 0; i < coord_x_s.size(); i++)
+        for (int i = 0; i < coord_x_s.size(); i++)
         {
             spriteStation.setPosition(coord_x_s[i], coord_y_s[i]);
             window.draw(spriteStation);
         }
 
         // On dessine la rame en mouvement
-        if (currentStationIndex < coord_x_s.size())
+        if (idx_station < coord_x_s.size())
         {
             Vector2f positionActuelle = spriteRame.getPosition();
-            Vector2f positionCible = Vector2f(coord_x_s[currentStationIndex], coord_y_s[currentStationIndex]);
-            Vector2f direction = positionCible - positionActuelle;
+            Vector2f positionCible = Vector2f(coord_x_s[idx_station], coord_y_s[idx_station]);
+            Vector2f chemin = positionCible - positionActuelle;
             float distance_station = distance(positionActuelle, positionCible);
 
             // On se déplace
             if (distance_station > 5.0f)
             {
-                direction = direction / distance_station;
-                spriteRame.move(direction * 0.5f);
+                chemin = chemin / distance_station;
+                spriteRame.move(chemin * 0.8f);
             }
-            else // On est arrivé à la station, on passe à la suivante
+            
+            // On va rencontrer une station
+            else
             {
-                currentStationIndex++;
-            }
-        }
-        /*
-            if (cible_coord_x_s != coord_x_s.end() && cible_coord_y_s != coord_y_s.end())
-            {
-                Vector2f positionActuelle = spriteRame.getPosition();
-                Vector2f positionCible = Vector2f(*cible_coord_x_s, *cible_coord_y_s);
-                Vector2f direction = positionCible - positionActuelle;
-                float distance_station = distance(positionActuelle, positionCible);
+                idx_station += direction;
 
-                // Déplacement de la rame
-                if (distance_station != 0)
+                // On change la direction si on atteint la première ou la dernière station
+                if (idx_station == 0 || idx_station == coord_x_s.size() - 1)
                 {
-                    direction = direction / distance_station;
-                    spriteRame.move(direction * 0.5f);
-
-                    // Si on arrive près de la station cible, on passe à la suivante
-                    if (distance(positionActuelle, positionCible) < 5.0f)
-                    {
-                        cible_coord_x_s++;
-                        cible_coord_y_s++;
-                    }
+                    direction *= -1;
                 }
             }
         }
-            */
-
+        window.draw(spriteRame);
   
         window.display(); // à la fin de la boucle principale pour tout afficher à l'écran
     }
-
-
 
 
 	return EXIT_SUCCESS;
