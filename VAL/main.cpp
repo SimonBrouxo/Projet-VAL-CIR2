@@ -116,11 +116,24 @@ int main()
     // Rame
     spriteRame.setTexture(textureRame);
     spriteRame.setScale(0.1f, 0.1f);
-    spriteRame.setPosition(Vector2f(*coord_x_s.begin(), *coord_y_s.begin()));
+    spriteRame.setPosition(Vector2f(coord_x_s[0], coord_y_s[0]));
+
+    size_t currentStationIndex = 0;
 
     // Stations
     spriteStation.setTexture(textureStation);
     spriteStation.setScale(0.2f, 0.2f);
+
+    for (int i = 0; i < coord_x_s.size(); i++)
+    {
+        cout << coord_x_s[i] << " ";
+    }
+    cout << endl;
+    for (int i = 0; i < coord_y_s.size(); i++)
+    {
+        cout << coord_y_s[i] << " ";
+    }
+    cout << endl;
 
 
     // Affichage de la fenêtre
@@ -139,37 +152,56 @@ int main()
         window.draw(spriteRame); // On dessine la rame
 
 
-        // On place toutes les stations
+        // On dessine toutes les stations
         for (size_t i = 0; i < coord_x_s.size(); i++)
         {
             spriteStation.setPosition(coord_x_s[i], coord_y_s[i]);
             window.draw(spriteStation);
         }
 
-
-        for (size_t i = 0; i < coord_x_s.size() - 1; i++)
+        // On dessine la rame en mouvement
+        if (currentStationIndex < coord_x_s.size())
         {
             Vector2f positionActuelle = spriteRame.getPosition();
-            Vector2f positionCible = Vector2f(coord_x_s[i + 1], coord_y_s[i + 1]);
+            Vector2f positionCible = Vector2f(coord_x_s[currentStationIndex], coord_y_s[currentStationIndex]);
             Vector2f direction = positionCible - positionActuelle;
             float distance_station = distance(positionActuelle, positionCible);
 
             // On se déplace
-            if (distance_station != 0)
+            if (distance_station > 5.0f)
             {
                 direction = direction / distance_station;
                 spriteRame.move(direction * 0.5f);
             }
-            // On est arrivé à la station
-            else
+            else // On est arrivé à la station, on passe à la suivante
             {
-                if (cible_coord_x_s != coord_x_s.end() && cible_coord_y_s != coord_y_s.end())
+                currentStationIndex++;
+            }
+        }
+        /*
+            if (cible_coord_x_s != coord_x_s.end() && cible_coord_y_s != coord_y_s.end())
+            {
+                Vector2f positionActuelle = spriteRame.getPosition();
+                Vector2f positionCible = Vector2f(*cible_coord_x_s, *cible_coord_y_s);
+                Vector2f direction = positionCible - positionActuelle;
+                float distance_station = distance(positionActuelle, positionCible);
+
+                // Déplacement de la rame
+                if (distance_station != 0)
                 {
-                    cible_coord_x_s++;
-                    cible_coord_y_s++;
+                    direction = direction / distance_station;
+                    spriteRame.move(direction * 0.5f);
+
+                    // Si on arrive près de la station cible, on passe à la suivante
+                    if (distance(positionActuelle, positionCible) < 5.0f)
+                    {
+                        cible_coord_x_s++;
+                        cible_coord_y_s++;
+                    }
                 }
             }
         }
+            */
 
   
         window.display(); // à la fin de la boucle principale pour tout afficher à l'écran
