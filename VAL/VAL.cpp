@@ -101,9 +101,9 @@ int Rame::getRame_id() {
 	return id;
 }
 
-void Rame::setRame_xy() {
-	cout << "Position de la rame : ";
-	cin >> pos_x >> pos_y;
+void Rame::setRame_xy(float new_x, float new_y) {
+	pos_x = new_x;
+	pos_y = new_y;
 }
 
 float Rame::getRame_x() {
@@ -175,15 +175,6 @@ int Superviseur::getNbRame() {
 
 
 
-// Gestion des evenement et des inputs
-void InputHandler(Event event, RenderWindow& window)
-{
-	// On teste si on clique sur la croix
-	if (event.type == sf::Event::Closed)
-	{
-		window.close();
-	}
-}
 
 float distance(Vector2f& v1, Vector2f& v2) 
 {

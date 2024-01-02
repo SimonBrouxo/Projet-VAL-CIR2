@@ -5,6 +5,10 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <thread>
+#include <chrono>
+#include <atomic>
+#include <mutex>
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
@@ -72,7 +76,7 @@ class Rame {
 		Rame(int id, float x, float y, float speed, int nb_passenger);
 		
 		// Setter / Getter
-		void setRame_xy();
+		void setRame_xy(float new_x, float new_y);
 		float getRame_x();
 		float getRame_y();
 		void setRame_id();
@@ -83,10 +87,6 @@ class Rame {
 		int getRame_nb_passenger();
 		void setRame();
 		void printRame_stats();
-		
-		// Méthodes
-		//float Rame_acceleration(float vitesse, float distance);
-		//float Rame_deceleration(float vitesse, float distance);
 };
 
 
@@ -112,5 +112,5 @@ class Superviseur {
 
 
 // Prototypes des fonctions
-void InputHandler(Event event, RenderWindow& window);
 float distance(Vector2f& v1, Vector2f& v2);
+void moveRame(int id, float x, float y, float speed, int nb_passenger, const vector<float>& coord_x_s, const vector<float>& coord_y_s, vector<sf::Vector2f>& ramePositions);
