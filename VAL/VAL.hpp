@@ -23,6 +23,8 @@ const string path_image(_PATH_IMG_);
 const int WIN_WIDTH = 1200;
 const int WIN_HEIGHT = 800;
 
+const int MAX_SPRITE_RAMES = 20;
+
 
 /**********************************************************************************/
 /*******************************    Station     ***********************************/

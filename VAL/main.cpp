@@ -1,15 +1,14 @@
 #include "VAL.hpp"
 
-const int MAX_RAMES = 10;
-
 std::mutex keepMovingMutex;
 std::atomic<bool> keepMoving(true);
 
-void moveRame(int id, float x, float y, float speed, int nb_passenger, const vector<float>& coord_x_s, const vector<float>& coord_y_s, vector<sf::Vector2f>& ramePositions) {
+void moveRame(int id, float x, float y, float speed, int nb_passenger, const vector<float>& coord_x_s, const vector<float>& coord_y_s, vector<sf::Vector2f>& ramePositions) 
+{
+    // On créé une rame quand le thread se lance
     Rame rame(id, x, y, speed, nb_passenger);
 
-    std::atomic<size_t> idx_station(1);
-    int direction = 1;
+    int idx_station = 1; // on ne veut pas de valeur négative
 
     while (true) {
         {
@@ -28,7 +27,7 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
             float distance_station = distance(positionActuelle, positionCible);
 
             // On se déplace
-            if (distance_station > 5.0f) 
+            if (distance_station > 0.5f) 
             {
                 direction_ActCible = direction_ActCible / distance_station;
                 rame.setRame_xy(rame.getRame_x() + direction_ActCible.x * 0.8f, rame.getRame_y() + direction_ActCible.y * 0.8f);
@@ -37,17 +36,18 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
             // On va rencontrer une station
             else 
             {
-                idx_station += direction;
-
-                // On change la direction si on atteint la première ou la dernière station
-                if (idx_station == 0 || idx_station == coord_x_s.size() - 1) 
+                // Revenir à la première station si on atteint la dernière
+                if (idx_station == coord_x_s.size() - 1)
                 {
-                    direction *= -1;
+                    idx_station = 0;
+                }
+                else
+                {
+                    idx_station++;
                 }
             }
 
-            // Sortie de débogage
-            std::cout << "Rame " << id << " - Position : (" << rame.getRame_x() << ", " << rame.getRame_y() << ") - Station : " << idx_station << std::endl;
+            //std::cout << "Rame " << id << " - Position : (" << rame.getRame_x() << ", " << rame.getRame_y() << ") - Station : " << idx_station << std::endl;
         }
 
         // Pause pour simuler un déplacement réaliste
@@ -66,7 +66,7 @@ int main()
 
     cout << "\t---- Projet VAL ----" << endl << endl << "Ce projet consiste à refaire un métro." << endl << endl;
 
-    /**********************************     Setup     ******************************************/
+    /**********************************     Superviseur     ******************************************/
 
     int nbStation = 0;
     int nbRame = 0;
@@ -130,17 +130,20 @@ int main()
 
     /**********************************     Rames     *****************************************/
 
+
     Texture textureRame;
-    Sprite spritesRame[MAX_RAMES];
-    vector<Vector2f> ramePositions(MAX_RAMES, Vector2f(0.0f, 0.0f));
+    Sprite spritesRame[MAX_SPRITE_RAMES]; // création de 20 sprites
+    vector<Vector2f> ramePositions(MAX_SPRITE_RAMES, Vector2f(0.0f, 0.0f));
     vector<thread> threads;
   
     // Création des threads pour chaque rame
-    for (int i = 0; i < nbRame; ++i) {
-        // Décalage de démarrage pour chaque rame (5 secondes de décalage)
+    for (int i = 0; i < nbRame; i++)
+    {
+        // On attends 5 secondes avant de lancer une autre rame
         std::this_thread::sleep_for(std::chrono::seconds(5));
         threads.emplace_back(moveRame, i + 1, coord_x_s[0], coord_y_s[0], 0.8f, 0, coord_x_s, coord_y_s, std::ref(ramePositions));
     }
+
 
     /***********************************     SFML     ******************************************/
 
@@ -163,9 +166,10 @@ int main()
     spriteBackground.setScale(WIN_SIZE.x, WIN_SIZE.y);
 
     // Rame
-    for (int i = 0; i < nbRame; ++i) {
+    for (int i = 0; i < nbRame; ++i) 
+    {
         spritesRame[i].setTexture(textureRame);
-        spritesRame[i].setScale(0.1f, 0.1f);
+        spritesRame[i].setScale(0.6f, 0.6f);
         spritesRame[i].setPosition(Vector2f(ramePositions[i].x, ramePositions[i].y));
     }
 
@@ -175,11 +179,11 @@ int main()
 
     // Stations
     spriteStation.setTexture(textureStation);
-    spriteStation.setScale(0.2f, 0.2f);
+    spriteStation.setScale(1.0f, 1.0f);
 
-    while (window.isOpen()) // Boucle principale et ouverture de la fenêtre
+    // Boucle principale et ouverture de la fenêtre
+    while (window.isOpen()) 
     {
-
         // Vérification des entrées clavier
         Event event; // Evènement dans la fenêtre        
         while (window.pollEvent(event)) // Boucle qui va regarder chaque évènement dans la fenêtre
@@ -194,54 +198,67 @@ int main()
             }
         }
 
-        window.clear(); // On "nettoie" la fenêtre (littéralement...) pour qu'elle soit vide
-        window.draw(spriteBackground); // on dessine le background
+        // On "nettoie" la fenêtre pour qu'elle soit vide
+        window.clear();
 
+        // On dessine le background
+        window.draw(spriteBackground); 
 
         // On dessine toutes les stations
         for (int i = 0; i < coord_x_s.size(); i++)
         {
             spriteStation.setPosition(coord_x_s[i], coord_y_s[i]);
             window.draw(spriteStation);
+
         }
 
-        // On dessine toutes les rames en mouvement
-        
-        //cout << "Position de la rame : " << currentspriteRame.getPosition().x << ", " << currentspriteRame.getPosition().y << endl;
+        // On dessine des lignes pour relier les stations par rapport au centre du sprite
+        for (int i = 0; i < coord_x_s.size() - 1; i++)
+        {
+            Vertex line[] = 
+            {
+                Vertex(Vector2f(coord_x_s[i] + spriteStation.getLocalBounds().width / 2, coord_y_s[i] + spriteStation.getLocalBounds().height / 2)),
+                Vertex(Vector2f(coord_x_s[i + 1] + spriteStation.getLocalBounds().width / 2, coord_y_s[i + 1] + spriteStation.getLocalBounds().height / 2))
+            };
+            window.draw(line, 2, Lines);
+        }
+
+        // On dessine le chemin de reserve en rouge entre la première et la dernière station
+        Vertex derniereLine[] = 
+        {
+            Vertex(Vector2f(coord_x_s.back() + spriteStation.getLocalBounds().width / 2, coord_y_s.back() + spriteStation.getLocalBounds().height / 2)),
+            Vertex(Vector2f(coord_x_s.front() + spriteStation.getLocalBounds().width / 2, coord_y_s.front() + spriteStation.getLocalBounds().height / 2))
+        };
+        derniereLine[0].color = Color::Red;
+        derniereLine[1].color = Color::Red;
+        window.draw(derniereLine, 2, Lines);
+
+        // On dessine toutes les rames en mouvement        
         for (int i = 0; i < nbRame; i++) 
         {
             if (ramePositions[i].x < coord_x_s.size() - 1)
             {
+                // On va calculer la distance qui sépare une rame d'une station
                 Vector2f positionActuelle = spritesRame[i].getPosition();
                 Vector2f positionCible = Vector2f(coord_x_s[ramePositions[i].x], coord_y_s[ramePositions[i].x]);
                 Vector2f direction_ActCible = positionCible - positionActuelle;
                 float distance_station = distance(positionActuelle, positionCible);
 
-                // On se déplace
-                if (distance_station > 5.0f) 
+                // On déplace une rame en réduisant la distance entre la rame et la prochaine station
+                if (distance_station > 0.5f) 
                 {
-                    direction_ActCible = direction_ActCible / distance_station;
-                    ramePositions[i] = sf::Vector2f(ramePositions[i].x + direction_ActCible.x * 0.8f, ramePositions[i].y + direction_ActCible.y * 0.8f);
+                    direction_ActCible = direction_ActCible / distance_station; // on réduit la distance
+                    ramePositions[i] = Vector2f(ramePositions[i].x + direction_ActCible.x * 0.8f, ramePositions[i].y + direction_ActCible.y * 0.8f); // on met à jour la position de la rame
                 }
 
-                // On va rencontrer une station
+                // On va revenir à la première station
                 else 
                 {
-                    ramePositions[i].x += ramePositions[i].y;
-
-                    // On change la direction si on atteint la première ou la dernière station
-                    if (ramePositions[i].x == 0 || ramePositions[i].x == coord_x_s.size() - 1) 
-                    {
-                        // Peut être une erreur il faut remonter le vecteur 
-                        ramePositions[i].y *= -1;
-                    }
+                    ramePositions[i].x = 0;
                 }
-            }
-            spritesRame[i].setPosition(ramePositions[i]);
-            window.draw(spritesRame[i]);
-
-
-            //std::cout << "Rame " << i << " - Position : (" << spritesRame[i].getPosition().x << ", " << spritesRame[i].getPosition().y << ") - Station : " << ramePositions[i].x << std::endl;
+            }            
+            spritesRame[i].setPosition(ramePositions[i]); // on place le sprite selon la position de la rame
+            window.draw(spritesRame[i]); // on dessine le sprite de la rame
         }
           
         window.display(); // à la fin de la boucle principale pour tout afficher à l'écran
@@ -253,7 +270,8 @@ int main()
     }
 
     // Joindre tous les threads avant de quitter
-    for (auto& thread : threads) {
+    for (auto& thread : threads) 
+    {
         thread.join();
     }
 

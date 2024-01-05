@@ -19,5 +19,3 @@ link_libraries(sfml-graphics sfml-window)
 
 # Incluez les sous-projets.
 add_subdirectory("VAL")
-
-add_subdirectory("testSFML")
