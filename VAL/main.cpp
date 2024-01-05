@@ -8,7 +8,7 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
     // On créé une rame quand le thread se lance
     Rame rame(id, x, y, speed, nb_passenger);
 
-    int idx_station = 1; // on ne veut pas de valeur négative
+    int idx_station = 0; // la valeur 0 permet d'ouvrir la fenêtre SFML lorsqu'on appelle le premier thread !!!
 
     while (true) {
         {
@@ -36,6 +36,7 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
             // On va rencontrer une station
             else 
             {
+                std::this_thread::sleep_for(std::chrono::seconds(5));
                 // Revenir à la première station si on atteint la dernière
                 if (idx_station == coord_x_s.size() - 1)
                 {
@@ -133,7 +134,7 @@ int main()
 
     Texture textureRame;
     Sprite spritesRame[MAX_SPRITE_RAMES]; // création de 20 sprites
-    vector<Vector2f> ramePositions(MAX_SPRITE_RAMES, Vector2f(0.0f, 0.0f));
+    vector<Vector2f> ramePositions(MAX_SPRITE_RAMES, Vector2f(coord_x_s[0], coord_y_s[0]));
     vector<thread> threads;
   
     // Création des threads pour chaque rame
