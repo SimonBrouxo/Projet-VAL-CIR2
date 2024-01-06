@@ -83,7 +83,7 @@ class Rame {
 		float getRame_y();
 		void setRame_id();
 		int getRame_id();
-		void setRame_speed();
+		void setRame_speed(float new_speed);
 		float getRame_speed();
 		void setRame_nb_passenger();
 		int getRame_nb_passenger();

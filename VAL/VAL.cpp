@@ -114,9 +114,8 @@ float Rame::getRame_y() {
 	return pos_y;
 }
 
-void Rame::setRame_speed() {
-	cout << "Vitesse de la rame : ";
-	cin >> speed;
+void Rame::setRame_speed(float new_speed) {
+	speed = new_speed;
 }
 
 float Rame::getRame_speed() {

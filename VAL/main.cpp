@@ -8,7 +8,13 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
     // On créé une rame quand le thread se lance
     Rame rame(id, x, y, speed, nb_passenger);
 
-    int idx_station = 0; // la valeur 0 permet d'ouvrir la fenêtre SFML lorsqu'on appelle le premier thread !!!
+    int idx_station = 0;
+
+    float acceleration = 0.03f;
+    float deceleration = 0.05f;
+    float vitesseMax = 2.0f;
+    int tempsAttente = 3;
+    bool enStation = false;
 
     while (true) {
         {
@@ -16,6 +22,12 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
             if (!keepMoving) {
                 break;
             }
+        }
+
+        // Vérifier si la rame est à la station et attendre si nécessaire
+        if (enStation) {
+            std::this_thread::sleep_for(std::chrono::seconds(tempsAttente));
+            enStation = false;
         }
 
         // Mouvement de la rame
@@ -26,17 +38,30 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
             Vector2f direction_ActCible = positionCible - positionActuelle;
             float distance_station = distance(positionActuelle, positionCible);
 
+            // Décélération à l'approche de la station
+            if (distance_station < 50.0f) 
+            {
+                rame.setRame_speed(std::max(rame.getRame_speed() - deceleration, 0.2f));
+            }
+            // Accélération
+            else 
+            {
+                rame.setRame_speed(std::min(rame.getRame_speed() + acceleration, vitesseMax));
+            }
+
             // On se déplace
             if (distance_station > 0.5f) 
             {
                 direction_ActCible = direction_ActCible / distance_station;
-                rame.setRame_xy(rame.getRame_x() + direction_ActCible.x * 0.8f, rame.getRame_y() + direction_ActCible.y * 0.8f);
+                rame.setRame_xy(rame.getRame_x() + direction_ActCible.x * rame.getRame_speed(), rame.getRame_y() + direction_ActCible.y * rame.getRame_speed());
             }
 
             // On va rencontrer une station
             else 
             {
-                std::this_thread::sleep_for(std::chrono::seconds(5));
+                rame.setRame_speed(0.0f);
+                enStation = true;
+
                 // Revenir à la première station si on atteint la dernière
                 if (idx_station == coord_x_s.size() - 1)
                 {
@@ -48,7 +73,7 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
                 }
             }
 
-            //std::cout << "Rame " << id << " - Position : (" << rame.getRame_x() << ", " << rame.getRame_y() << ") - Station : " << idx_station << std::endl;
+            //std::cout << "Rame " << id << " - Position : (" << rame.getRame_x() << ", " << rame.getRame_y() << ") - Station : " << idx_station << " - Speed: " << rame.getRame_speed() << std::endl;
         }
 
         // Pause pour simuler un déplacement réaliste
@@ -140,8 +165,8 @@ int main()
     // Création des threads pour chaque rame
     for (int i = 0; i < nbRame; i++)
     {
-        // On attends 5 secondes avant de lancer une autre rame
-        std::this_thread::sleep_for(std::chrono::seconds(5));
+        // On attends 10 secondes avant de lancer une autre rame
+        std::this_thread::sleep_for(std::chrono::seconds(10));
         threads.emplace_back(moveRame, i + 1, coord_x_s[0], coord_y_s[0], 0.8f, 0, coord_x_s, coord_y_s, std::ref(ramePositions));
     }
 
@@ -173,10 +198,6 @@ int main()
         spritesRame[i].setScale(0.6f, 0.6f);
         spritesRame[i].setPosition(Vector2f(ramePositions[i].x, ramePositions[i].y));
     }
-
-    //size_t idx_station = 0; // Pour savoir si la rame a atteint une station
-    //int direction = 1; // direction = 1 si on avance pour aller vers la dernière station ou direction = -1 si on recule pour revenir à la première station 
-
 
     // Stations
     spriteStation.setTexture(textureStation);
