@@ -1,9 +1,10 @@
 #include "VAL.hpp"
 
-std::mutex keepMovingMutex;
-std::atomic<bool> keepMoving(true);
+std::mutex keepRunningMutex;
+bool keepRunning = true;
 
-void moveRame(int id, float x, float y, float speed, int nb_passenger, const vector<float>& coord_x_s, const vector<float>& coord_y_s, vector<sf::Vector2f>& ramePositions) 
+
+void moveRame(int id, float x, float y, float speed, int nb_passenger, const vector<float>& coord_x_s, const vector<float>& coord_y_s, vector<Vector2f>& ramePositions, Station& station)
 {
     // On créé une rame quand le thread se lance
     Rame rame(id, x, y, speed, nb_passenger);
@@ -16,16 +17,19 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
     int tempsAttente = 3;
     bool enStation = false;
 
-    while (true) {
+    while (keepRunning) {
         {
-            std::unique_lock<std::mutex> lock(keepMovingMutex);
-            if (!keepMoving) {
+            std::unique_lock<std::mutex> lock(keepRunningMutex);
+            if (!keepRunning) {
                 break;
             }
         }
 
         // Vérifier si la rame est à la station et attendre si nécessaire
         if (enStation) {
+            entrerPersonnesRame(rame);
+            sortirPersonnesRame(rame);
+            entrerPersonnesStation(station);
             std::this_thread::sleep_for(std::chrono::seconds(tempsAttente));
             enStation = false;
         }
@@ -73,14 +77,14 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
                 }
             }
 
-            //std::cout << "Rame " << id << " - Position : (" << rame.getRame_x() << ", " << rame.getRame_y() << ") - Station : " << idx_station << " - Speed: " << rame.getRame_speed() << std::endl;
+            std::cout << "Rame " << id  << " - Position : (" << rame.getRame_x() << ", " << rame.getRame_y() << ") - Direction station : " << idx_station + 1 << " - Vitesse : " << rame.getRame_speed() << " - Passager : " << rame.getRame_nb_passenger() << " - people : " << station.getStation_nb_people() << endl;
         }
 
         // Pause pour simuler un déplacement réaliste
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
         {
-            std::unique_lock<std::mutex> lock(keepMovingMutex);
+            std::unique_lock<std::mutex> lock(keepRunningMutex);
             ramePositions[id - 1] = sf::Vector2f(rame.getRame_x(), rame.getRame_y());
         }
     }
@@ -112,37 +116,30 @@ int main()
 
     // Création de la map stations qui contiendra tous les stations dans l'ordre et stations_coord qui contient les coordonnées des stations dans l'ordre
     cout << "\tCréation des Stations" << endl << endl << "Vous allez créer vos stations avec les paramètres de votre choix." << endl << endl;
+	Station station; // création d'une station
     map<int, string> stations; // noms de stations par id de stations
     map<int, string>::iterator cible_s;
     map<int, float> stations_coord_x; // coordonnées x par id de stations
     map<int, float> stations_coord_y; // coordonnées y par id de stations
+    map<int, float>::iterator cible_s_coord_x;
+    map<int, float>::iterator cible_s_coord_y;
+    map<int, int> stations_nb_people;
+    map<int, int>::iterator cible_s_nb_people;
 
     // On remplit la map avec l'id de la station et son nom
     for (int i = 0;i < nbStation;i++) 
     {
         cout << "Création d'une station :" << endl;
-	    Station station; // création d'une station
 	    station.setStation(); // on donne les paramètres de la station (nom,position...)
         stations.insert(pair<int, string>(station.getStation_id(), station.getStation_noun())); // on insert dans la map, l'id et le nom de la station
         stations_coord_x.insert(pair<int, float>(station.getStation_id(), station.getStation_x()));
         stations_coord_y.insert(pair<int, float>(station.getStation_id(), station.getStation_y()));
+        stations_nb_people.insert(pair<int, int>(station.getStation_id(), station.getStation_nb_people()));
     }
-
-    // On affiche les stations dans l'ordre
-    cout << "Votre métro contient les " << stations.size() << " stations suivantes : " << endl;
-    for (cible_s = stations.begin(); cible_s != stations.end(); cible_s++) 
-    { 
-        cout << "- " << cible_s->first << " " << cible_s->second << endl; // donne le numéro de la station et son nom
-    }
-    cout << endl;
 
     // On récupère les coordonnées x et y des stations
-    map<int, float>::iterator cible_s_coord_x;
-    map<int, float>::iterator cible_s_coord_y;
     vector<float>coord_x_s;
     vector<float>coord_y_s;
-    vector<float>::iterator cible_coord_x_s;
-    vector<float>::iterator cible_coord_y_s;
 
     for (cible_s_coord_x = stations_coord_x.begin();cible_s_coord_x != stations_coord_x.end();cible_s_coord_x++) // on parcours tous les éléments de l'itérateur de stations pour les x
     {
@@ -153,6 +150,14 @@ int main()
         coord_y_s.push_back(cible_s_coord_y->second);
     }
 
+    // On affiche les stations dans l'ordre
+    cout << "Votre métro contient les " << stations.size() << " stations suivantes : " << endl;
+    for (cible_s = stations.begin(); cible_s != stations.end(); cible_s++) 
+    { 
+        cout << "- " << cible_s->first << " : " << cible_s->second << endl; // donne le numéro de la station et son nom
+                }
+    cout << endl;
+
 
     /**********************************     Rames     *****************************************/
 
@@ -160,14 +165,14 @@ int main()
     Texture textureRame;
     Sprite spritesRame[MAX_SPRITE_RAMES]; // création de 20 sprites
     vector<Vector2f> ramePositions(MAX_SPRITE_RAMES, Vector2f(coord_x_s[0], coord_y_s[0]));
-    vector<thread> threads;
+    vector<thread> threadsRame;
   
     // Création des threads pour chaque rame
     for (int i = 0; i < nbRame; i++)
     {
         // On attends 10 secondes avant de lancer une autre rame
         std::this_thread::sleep_for(std::chrono::seconds(10));
-        threads.emplace_back(moveRame, i + 1, coord_x_s[0], coord_y_s[0], 0.8f, 0, coord_x_s, coord_y_s, std::ref(ramePositions));
+        threadsRame.emplace_back([&]() { moveRame(i, coord_x_s[0], coord_y_s[0], 0.8f, 0, coord_x_s, coord_y_s, std::ref(ramePositions), std::ref(station)); });
     }
 
 
@@ -213,8 +218,8 @@ int main()
             if (event.type == Event::Closed) 
             {
                 {
-                    std::unique_lock<std::mutex> lock(keepMovingMutex);
-                    keepMoving = false;
+                    std::unique_lock<std::mutex> lock(keepRunningMutex);
+                    keepRunning = false;
                 }
                 window.close();
             }
@@ -287,12 +292,12 @@ int main()
     }
 
     {
-        std::unique_lock<std::mutex> lock(keepMovingMutex);
-        keepMoving = false;
+        std::unique_lock<std::mutex> lock(keepRunningMutex);
+        keepRunning = false;
     }
 
     // Joindre tous les threads avant de quitter
-    for (auto& thread : threads) 
+    for (auto& thread : threadsRame) 
     {
         thread.join();
     }

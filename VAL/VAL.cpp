@@ -50,9 +50,8 @@ Vector2f Station::getStation_xy() {
 	return Vector2f(pos_x, pos_y);
 }
 
-void Station::setStation_nb_people() {
-	cout << "Nombre de personne dans la station : ";
-	cin >> nb_people;
+void Station::setStation_nb_people( int new_nb_people) {
+	nb_people = new_nb_people;
 }
 
 int Station::getStation_nb_people(){
@@ -122,9 +121,8 @@ float Rame::getRame_speed() {
 	return speed;
 }
 
-void Rame::setRame_nb_passenger() {
-	cout << "Nombre de passagers : ";
-	cin >> nb_passenger;
+void Rame::setRame_nb_passenger(int new_nb_passenger) {
+	nb_passenger = new_nb_passenger;
 }
 
 int Rame::getRame_nb_passenger() {
@@ -134,12 +132,6 @@ int Rame::getRame_nb_passenger() {
 void Rame::setRame() {
 	cout << "Numéro de la rame : ";
 	cin >> id;
-	/*
-	cout << "Position de la rame : ";
-	cin >> pos_x >> pos_y;
-	cout << "Vitesse de la rame : ";
-	cin >> speed;
-	*/
 	cout << "Nombre de passagers : ";
 	cin >> nb_passenger;
 	cout << endl;
@@ -173,11 +165,46 @@ int Superviseur::getNbRame() {
 }
 
 
+/**********************************************************************************/
 
-
+// Fonction pour calculer la distance entre deux points
 float distance(Vector2f& v1, Vector2f& v2) 
 {
 	float dx = v2.x - v1.x;
 	float dy = v2.y - v1.y;
 	return sqrt(dx * dx + dy * dy);
+}
+
+mutex peopleMutex;
+// Fonction pour gérer l'entrée des passagers dans une rame
+void entrerPersonnesRame(Rame& rame) 
+{
+	lock_guard<mutex> lock(peopleMutex);
+
+	int nbPersonnes = rand() % (NB_MAX_PERSONNE_RAME + 1); // Nombre aléatoire de personnes à entrer dans la rame
+	rame.setRame_nb_passenger(rame.getRame_nb_passenger() + nbPersonnes);
+
+	cout << nbPersonnes << " personnes sont entrées dans la rame " << rame.getRame_id() << endl;
+}
+
+// Fonction pour gérer la sortie des passagers d'une rame
+void sortirPersonnesRame(Rame& rame) 
+{
+	lock_guard<mutex> lock(peopleMutex);
+
+	int nbPersonnes = rand() % (rame.getRame_nb_passenger() + 1); // Nombre aléatoire de personnes à sortir de la rame
+	rame.setRame_nb_passenger(rame.getRame_nb_passenger() - nbPersonnes);
+
+	cout << nbPersonnes << " personnes sont sorties de la rame " << rame.getRame_id() << endl;
+}
+
+// Fonction pour gérer l'entrée des personnes dans une station
+void entrerPersonnesStation(Station& station) 
+{
+	lock_guard<mutex> lock(peopleMutex);
+
+	int nbPersonnes = rand() % (NB_MAX_PERSONNE_STATION + 1); // Nombre aléatoire de personnes à entrer dans la station
+	station.setStation_nb_people(station.getStation_nb_people() + nbPersonnes);
+
+	cout << nbPersonnes << " personnes sont entrées dans la station " << station.getStation_id() << endl;
 }

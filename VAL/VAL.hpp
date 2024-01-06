@@ -25,6 +25,9 @@ const int WIN_HEIGHT = 800;
 
 const int MAX_SPRITE_RAMES = 20;
 
+const int NB_MAX_PERSONNE_STATION = 100;
+const int NB_MAX_PERSONNE_RAME = 30;
+
 
 /**********************************************************************************/
 /*******************************    Station     ***********************************/
@@ -52,7 +55,7 @@ class Station {
 		float getStation_x();
 		float getStation_y();
 		Vector2f getStation_xy();
-		void setStation_nb_people();
+		void setStation_nb_people(int new_nb_people);
 		int getStation_nb_people();
 		void setStation();
 		void printStation_stats();
@@ -74,7 +77,7 @@ class Rame {
 	public:
 
 		// Constructor
-		Rame() {};
+		//Rame() {};
 		Rame(int id, float x, float y, float speed, int nb_passenger);
 		
 		// Setter / Getter
@@ -85,7 +88,7 @@ class Rame {
 		int getRame_id();
 		void setRame_speed(float new_speed);
 		float getRame_speed();
-		void setRame_nb_passenger();
+		void setRame_nb_passenger(int new_nb_passenger);
 		int getRame_nb_passenger();
 		void setRame();
 		void printRame_stats();
@@ -104,7 +107,7 @@ class Superviseur {
 	public:
 
 		// Constructeur
-		Superviseur() {};
+		//Superviseur() {};
 		Superviseur(int nbStation, int nbRame);
 
 		// Setter / getter
@@ -115,4 +118,8 @@ class Superviseur {
 
 // Prototypes des fonctions
 float distance(Vector2f& v1, Vector2f& v2);
-void moveRame(int id, float x, float y, float speed, int nb_passenger, const vector<float>& coord_x_s, const vector<float>& coord_y_s, vector<sf::Vector2f>& ramePositions);
+void moveRame(int id, float x, float y, float speed, int nb_passenger, const vector<float>& coord_x_s, const vector<float>& coord_y_s, vector<Vector2f>& ramePositions);
+void entrerPersonnesRame(Rame& rame);
+void sortirPersonnesRame(Rame& rame);
+void entrerPersonnesStation(Station& station);
+
