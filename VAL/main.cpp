@@ -1,12 +1,14 @@
 #include "VAL.hpp"
 
 std::mutex keepRunningMutex;
+
 bool keepRunning = true;
 
 
-void moveRame(int id, float x, float y, float speed, int nb_passenger, const vector<float>& coord_x_s, const vector<float>& coord_y_s, vector<Vector2f>& ramePositions, Station& station)
+void moveRame(int id, float x, float y, float speed, int nb_passenger, const vector<float>& coord_x_s, const vector<float>& coord_y_s, vector<Vector2f>& ramePositions, vector<Station>& stations)
 {
     srand(time(NULL));
+    cout << "==========================================================================" << endl << endl << "\tMise en place de la simulation du métro" << endl << endl << "==========================================================================" << endl;
 
     // On créé une rame quand le thread se lance
     Rame rame(id, x, y, speed, nb_passenger);
@@ -32,7 +34,7 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
 
         // Vérifier si la rame est à la station et attendre si nécessaire
         if (enStation) {
-            cout << endl << "La rame " << rame.getRame_id() << " est arrivé à la station " << idx_station + 1 << endl;
+            cout << endl << "La rame " << rame.getRame_id() << " va se diriger vers la station " << stations[idx_station].getStation_noun() << " (" << idx_station + 1 << ")" << endl;
             sortirPersonnesRame(rame);
             entrerPersonnesRame(rame);
             //entrerPersonnesStation(station);
@@ -74,7 +76,7 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
                 rame.setRame_speed(0.0f); // on est à l'arrêt car on a atteint une station
                 enStation = true;
 
-                // Revenir à la première station si on atteint la dernière
+                // On revient à la première station si on atteint le terminus
                 if (idx_station == coord_x_s.size() - 1)
                 {
                     idx_station = 0;
@@ -85,11 +87,16 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
                 }
             }
 
+            // On calcule le temps pour afficher un message d'info sur les rames (toutes les 5 secondes)
             auto tempsAct = chrono::steady_clock::now();
             auto tempsPasse = chrono::duration_cast<chrono::seconds>(tempsAct - chronometre).count();
             if (tempsPasse >= 5) 
             {
-            std::cout << "Rame " << id  << " - Position : (" << rame.getRame_x() << "," << rame.getRame_y() << ") - Direction : station " << idx_station + 1 << " - Vitesse : " << rame.getRame_speed() << " - Passager : " << rame.getRame_nb_passenger() << "/" << NB_MAX_PERSONNE_RAME << endl;
+            std::cout << "Rame " << id  << 
+                        " - Position : (" << static_cast<int>(round(rame.getRame_x())) << "," << static_cast<int>(round(rame.getRame_y())) << // on utilise static cast pour garder des nombres entiers
+                        ") - Direction : " << stations[idx_station].getStation_noun() << " (" << idx_station + 1 << // on donne la prochaine station
+                        ") - Vitesse : " << setprecision(2) << rame.getRame_speed() << // on affiche la vitesse avec deux chiffres après la virgule (setprecision) même si la vitesse est un entier (fixed)
+                        " - Passager : " << rame.getRame_nb_passenger() << "/" << NB_MAX_PERSONNE_RAME << endl; // on affiche le nombre de passagers dans la rame
             chronometre = tempsAct;
             }
 
@@ -130,9 +137,9 @@ int main()
 
 
     // Création de la map stations qui contiendra tous les stations dans l'ordre et stations_coord qui contient les coordonnées des stations dans l'ordre
-    cout << "\tCréation des Stations" << endl << endl << "Vous allez créer vos stations avec les paramètres de votre choix." << endl << endl;
-	Station station; // création d'une station
-    map<int, string> stations; // noms de stations par id de stations
+    cout << "\t\tCréation des Stations" << endl << endl << "Vous allez créer vos stations avec les paramètres de votre choix." << endl << endl;
+	vector <Station> stations; // vecteur qui contiendra toutes les stations
+    vector<pair<int, string>> stations_nom; // noms de stations par id de stations
     map<int, string>::iterator cible_s;
     map<int, float> stations_coord_x; // coordonnées x par id de stations
     map<int, float> stations_coord_y; // coordonnées y par id de stations
@@ -142,14 +149,16 @@ int main()
     map<int, int>::iterator cible_s_nb_people;
 
     // On remplit la map avec l'id de la station et son nom
-    for (int i = 0;i < nbStation;i++) 
+    for (int i = 0; i < nbStation; i++)
     {
-        cout << "Création d'une station :" << endl;
+        cout << "\tCréation d'une station :" << endl;
+        Station station; // on créé un objet station
 	    station.setStation(); // on donne les paramètres de la station (nom,position...)
-        stations.insert(pair<int, string>(station.getStation_id(), station.getStation_noun())); // on insert dans la map, l'id et le nom de la station
+        stations_nom.emplace_back(station.getStation_id(), station.getStation_noun()); // on insert dans le vecteur, l'id et le nom de la station
         stations_coord_x.insert(pair<int, float>(station.getStation_id(), station.getStation_x()));
         stations_coord_y.insert(pair<int, float>(station.getStation_id(), station.getStation_y()));
         stations_nb_people.insert(pair<int, int>(station.getStation_id(), station.getStation_nb_people()));
+        stations.push_back(station); // on ajoute la station dans le vecteur
     }
 
     // On récupère les coordonnées x et y des stations
@@ -165,12 +174,15 @@ int main()
         coord_y_s.push_back(cible_s_coord_y->second);
     }
 
+    // Tri du vecteur stations_nom par numéro de station avec une fonction lambda
+    sort(stations_nom.begin(), stations_nom.end(), [](const pair<int, string>& a, const pair<int, string>& b) {return a.first < b.first; });
+
     // On affiche les stations dans l'ordre
-    cout << "Votre métro contient les " << stations.size() << " stations suivantes : " << endl;
-    for (cible_s = stations.begin(); cible_s != stations.end(); cible_s++) 
-    { 
-        cout << "- " << cible_s->first << " : " << cible_s->second << endl; // donne le numéro de la station et son nom
-                }
+    cout << "Votre métro contient les " << stations_nom.size() << " stations suivantes : " << endl;
+    for (const auto& station : stations_nom)
+    {
+        cout << "- " << station.first << " : " << station.second << endl; // donne le numéro de la station et son nom
+    }
     cout << endl;
 
 
@@ -187,7 +199,7 @@ int main()
     {
         // On attends 10 secondes avant de lancer une autre rame
         std::this_thread::sleep_for(std::chrono::seconds(10));
-        threadsRame.emplace_back([&]() { moveRame(i, coord_x_s[0], coord_y_s[0], 0.8f, 0, coord_x_s, coord_y_s, std::ref(ramePositions), std::ref(station)); });
+        threadsRame.emplace_back([&]() { moveRame(i, coord_x_s[0], coord_y_s[0], 0.8f, 0, coord_x_s, coord_y_s, std::ref(ramePositions), std::ref(stations)); });
     }
 
 

@@ -180,28 +180,24 @@ mutex peopleMutex;
 void entrerPersonnesRame(Rame& rame) 
 {
 	lock_guard<mutex> lock(peopleMutex);
-	int nbPersonnes = rand() % (NB_MAX_PERSONNE_RAME - rame.getRame_nb_passenger() + 1); // MAX - random pour ne pas dépassé la limite de passagers
-	rame.setRame_nb_passenger(rame.getRame_nb_passenger() + nbPersonnes);
-	cout << "Rame " << rame.getRame_id() << " : +" << nbPersonnes << endl;
+	int nbPassagers = rand() % (NB_MAX_PERSONNE_RAME - rame.getRame_nb_passenger() + 1); // MAX - random pour ne pas dépassé la limite de passagers
+	rame.setRame_nb_passenger(rame.getRame_nb_passenger() + nbPassagers);
+	cout << "\tRame " << rame.getRame_id() << " : +" << nbPassagers << " passagers" << endl;
 }
 
 // Fonction pour gérer la sortie des passagers d'une rame
 void sortirPersonnesRame(Rame& rame) 
 {
 	lock_guard<mutex> lock(peopleMutex);
-	int nbPersonnes = rand() % (rame.getRame_nb_passenger() + 1);
-	rame.setRame_nb_passenger(rame.getRame_nb_passenger() - nbPersonnes);
-
-	cout << "Rame " << rame.getRame_id() << " : -" << nbPersonnes << endl;
+	int nbPassagers = rand() % (rame.getRame_nb_passenger() + 1);rame.setRame_nb_passenger(rame.getRame_nb_passenger() - nbPassagers);
+	cout << "\tRame " << rame.getRame_id() << " : -" << nbPassagers << " passagers" << endl;
 }
 
 // Fonction pour gérer l'entrée des personnes dans une station
 void entrerPersonnesStation(Station& station) 
 {
 	lock_guard<mutex> lock(peopleMutex);
-
 	int nbPersonnes = rand() % (NB_MAX_PERSONNE_STATION + 1); // Nombre aléatoire de personnes à entrer dans la station
 	station.setStation_nb_people(station.getStation_nb_people() + nbPersonnes);
-
 	cout << station.getStation_id() << " : +" << nbPersonnes << endl;
 }
