@@ -1,6 +1,6 @@
 #include "VAL.hpp"
 
-std::mutex keepRunningMutex;
+mutex keepRunningMutex;
 
 bool keepRunning = true;
 
@@ -18,7 +18,7 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
     float acceleration = 0.03f;
     float deceleration = 0.05f;
     float vitesseMax = 2.0f;
-    float vitesseMin = 0.2f;
+    float vitesseMin = 0.3f;
     int tempsAttente = 3;
     bool enStation = false;
     auto chronometre = chrono::steady_clock::now();
@@ -26,7 +26,7 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
 
     while (keepRunning) {
         {
-            std::unique_lock<std::mutex> lock(keepRunningMutex);
+            unique_lock<mutex> lock(keepRunningMutex);
             if (!keepRunning) {
                 break;
             }
@@ -39,7 +39,7 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
             entrerPersonnesRame(rame);
             //entrerPersonnesStation(station);
             cout << endl;
-            std::this_thread::sleep_for(std::chrono::seconds(tempsAttente));
+            std::this_thread::sleep_for(chrono::seconds(tempsAttente));
             enStation = false;
         }
 
@@ -55,12 +55,12 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
             // Décélération à l'approche de la station
             if (distance_station < 50.0f) 
             {
-                rame.setRame_speed(std::max(rame.getRame_speed() - deceleration, vitesseMin)); // on prend la plus grande valeur entre la décélération en cours et la vitesse min
+                rame.setRame_speed(max(rame.getRame_speed() - deceleration, vitesseMin)); // on prend la plus grande valeur entre la décélération en cours et la vitesse min
             }
             // Accélération
             else 
             {
-                rame.setRame_speed(std::min(rame.getRame_speed() + acceleration, vitesseMax)); // on prend la plus petite valeur entre l'accélération en cours et la vitesse max
+                rame.setRame_speed(min(rame.getRame_speed() + acceleration, vitesseMax)); // on prend la plus petite valeur entre l'accélération en cours et la vitesse max
             }
 
             // On se déplace
@@ -92,21 +92,21 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
             auto tempsPasse = chrono::duration_cast<chrono::seconds>(tempsAct - chronometre).count();
             if (tempsPasse >= 5) 
             {
-            std::cout << "Rame " << id  << 
-                        " - Position : (" << static_cast<int>(round(rame.getRame_x())) << "," << static_cast<int>(round(rame.getRame_y())) << // on utilise static cast pour garder des nombres entiers
-                        ") - Direction : " << stations[idx_station].getStation_noun() << " (" << idx_station + 1 << // on donne la prochaine station
-                        ") - Vitesse : " << setprecision(2) << rame.getRame_speed() << // on affiche la vitesse avec deux chiffres après la virgule (setprecision) même si la vitesse est un entier (fixed)
-                        " - Passager : " << rame.getRame_nb_passenger() << "/" << NB_MAX_PERSONNE_RAME << endl; // on affiche le nombre de passagers dans la rame
+            cout << "Rame " << id  << 
+                    " - Position : ("  << static_cast<int>(round(rame.getRame_x())) << "," << static_cast<int>(round(rame.getRame_y())) << // on utilise static cast pour garder des nombres entiers
+                    ") - Direction : " << stations[idx_station].getStation_noun() << " (" << idx_station + 1 << // on donne la prochaine station
+                    ") - Vitesse : "   << setprecision(2) << rame.getRame_speed() << // on affiche la vitesse avec deux chiffres après la virgule (setprecision) même si la vitesse est un entier (fixed)
+                    " - Passager : "   << rame.getRame_nb_passenger() << "/" << NB_MAX_PERSONNE_RAME << endl; // on affiche le nombre de passagers dans la rame
             chronometre = tempsAct;
             }
 
         }
 
         // Pause pour simuler un déplacement réaliste
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        std::this_thread::sleep_for(chrono::milliseconds(50));
 
         {
-            std::unique_lock<std::mutex> lock(keepRunningMutex);
+            unique_lock<mutex> lock(keepRunningMutex);
             ramePositions[id - 1] = sf::Vector2f(rame.getRame_x(), rame.getRame_y());
         }
     }
@@ -140,7 +140,6 @@ int main()
     cout << "\t\tCréation des Stations" << endl << endl << "Vous allez créer vos stations avec les paramètres de votre choix." << endl << endl;
 	vector <Station> stations; // vecteur qui contiendra toutes les stations
     vector<pair<int, string>> stations_nom; // noms de stations par id de stations
-    map<int, string>::iterator cible_s;
     map<int, float> stations_coord_x; // coordonnées x par id de stations
     map<int, float> stations_coord_y; // coordonnées y par id de stations
     map<int, float>::iterator cible_s_coord_x;
@@ -198,8 +197,8 @@ int main()
     for (int i = 0; i < nbRame; i++)
     {
         // On attends 10 secondes avant de lancer une autre rame
-        std::this_thread::sleep_for(std::chrono::seconds(10));
-        threadsRame.emplace_back([&]() { moveRame(i, coord_x_s[0], coord_y_s[0], 0.8f, 0, coord_x_s, coord_y_s, std::ref(ramePositions), std::ref(stations)); });
+        std::this_thread::sleep_for(chrono::seconds(10));
+        threadsRame.emplace_back([&]() { moveRame(i, coord_x_s[0], coord_y_s[0], 0.8f, 0, coord_x_s, coord_y_s, ramePositions,stations); });
     }
 
 
@@ -227,7 +226,7 @@ int main()
     for (int i = 0; i < nbRame; ++i) 
     {
         spritesRame[i].setTexture(textureRame);
-        spritesRame[i].setScale(0.6f, 0.6f);
+        spritesRame[i].setScale(0.55f, 0.55f);
         spritesRame[i].setPosition(Vector2f(ramePositions[i].x, ramePositions[i].y));
     }
 
@@ -245,7 +244,7 @@ int main()
             if (event.type == Event::Closed) 
             {
                 {
-                    std::unique_lock<std::mutex> lock(keepRunningMutex);
+                    unique_lock<mutex> lock(keepRunningMutex);
                     keepRunning = false;
                 }
                 window.close();
@@ -277,7 +276,7 @@ int main()
             window.draw(line, 2, Lines);
         }
 
-        // On dessine le chemin de reserve en rouge entre la première et la dernière station
+        // On dessine un chemin rouge entre la première et la dernière station
         Vertex derniereLine[] = 
         {
             Vertex(Vector2f(coord_x_s.back() + spriteStation.getLocalBounds().width / 2, coord_y_s.back() + spriteStation.getLocalBounds().height / 2)),
@@ -311,7 +310,7 @@ int main()
                     ramePositions[i].x = 0;
                 }
             }            
-            spritesRame[i].setPosition(ramePositions[i]); // on place le sprite selon la position de la rame
+            spritesRame[i].setPosition(ramePositions[i].x + 22, ramePositions[i].y); // on place le sprite selon la position de la rame (petite correction de l'axe x pour le sprite)
             window.draw(spritesRame[i]); // on dessine le sprite de la rame
         }
           
@@ -319,7 +318,7 @@ int main()
     }
 
     {
-        std::unique_lock<std::mutex> lock(keepRunningMutex);
+        unique_lock<mutex> lock(keepRunningMutex);
         keepRunning = false;
     }
 

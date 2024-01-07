@@ -65,8 +65,8 @@ void Station::setStation() {
 	cin >> id;
 	cout << "Position de la station : ";
 	cin >> pos_x >> pos_y;
-	cout << "Nombre de personne dans la station : ";
-	cin >> nb_people;
+	/*cout << "Nombre de personne dans la station : ";
+	cin >> nb_people;*/
 	cout << endl;
 }
 
