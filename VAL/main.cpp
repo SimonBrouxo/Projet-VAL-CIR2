@@ -6,6 +6,8 @@ bool keepRunning = true;
 
 void moveRame(int id, float x, float y, float speed, int nb_passenger, const vector<float>& coord_x_s, const vector<float>& coord_y_s, vector<Vector2f>& ramePositions, Station& station)
 {
+    srand(time(NULL));
+
     // On créé une rame quand le thread se lance
     Rame rame(id, x, y, speed, nb_passenger);
 
@@ -14,8 +16,11 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
     float acceleration = 0.03f;
     float deceleration = 0.05f;
     float vitesseMax = 2.0f;
+    float vitesseMin = 0.2f;
     int tempsAttente = 3;
     bool enStation = false;
+    auto chronometre = chrono::steady_clock::now();
+
 
     while (keepRunning) {
         {
@@ -27,9 +32,11 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
 
         // Vérifier si la rame est à la station et attendre si nécessaire
         if (enStation) {
-            entrerPersonnesRame(rame);
+            cout << endl << "La rame " << rame.getRame_id() << " est arrivé à la station " << station.getStation_id() << endl;
             sortirPersonnesRame(rame);
-            entrerPersonnesStation(station);
+            entrerPersonnesRame(rame);
+            //entrerPersonnesStation(station);
+            cout << endl;
             std::this_thread::sleep_for(std::chrono::seconds(tempsAttente));
             enStation = false;
         }
@@ -37,6 +44,7 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
         // Mouvement de la rame
         if (idx_station < coord_x_s.size()) 
         {
+            // On va calculer la distance qui sépare une rame d'une station
             Vector2f positionActuelle = Vector2f(rame.getRame_x(), rame.getRame_y());
             Vector2f positionCible = Vector2f(coord_x_s[idx_station], coord_y_s[idx_station]);
             Vector2f direction_ActCible = positionCible - positionActuelle;
@@ -45,25 +53,25 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
             // Décélération à l'approche de la station
             if (distance_station < 50.0f) 
             {
-                rame.setRame_speed(std::max(rame.getRame_speed() - deceleration, 0.2f));
+                rame.setRame_speed(std::max(rame.getRame_speed() - deceleration, vitesseMin)); // on prend la plus grande valeur entre la décélération en cours et la vitesse min
             }
             // Accélération
             else 
             {
-                rame.setRame_speed(std::min(rame.getRame_speed() + acceleration, vitesseMax));
+                rame.setRame_speed(std::min(rame.getRame_speed() + acceleration, vitesseMax)); // on prend la plus petite valeur entre l'accélération en cours et la vitesse max
             }
 
             // On se déplace
             if (distance_station > 0.5f) 
             {
-                direction_ActCible = direction_ActCible / distance_station;
-                rame.setRame_xy(rame.getRame_x() + direction_ActCible.x * rame.getRame_speed(), rame.getRame_y() + direction_ActCible.y * rame.getRame_speed());
+                direction_ActCible = direction_ActCible / distance_station; // on réduit la distance entre qui nous sépare de la station suivante
+                rame.setRame_xy(rame.getRame_x() + direction_ActCible.x * rame.getRame_speed(), rame.getRame_y() + direction_ActCible.y * rame.getRame_speed()); // on met à jour la position de la rame
             }
 
-            // On va rencontrer une station
+            // On va atteindre une station
             else 
             {
-                rame.setRame_speed(0.0f);
+                rame.setRame_speed(0.0f); // on est à l'arrêt car on a atteint une station
                 enStation = true;
 
                 // Revenir à la première station si on atteint la dernière
@@ -77,7 +85,14 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
                 }
             }
 
-            std::cout << "Rame " << id  << " - Position : (" << rame.getRame_x() << ", " << rame.getRame_y() << ") - Direction station : " << idx_station + 1 << " - Vitesse : " << rame.getRame_speed() << " - Passager : " << rame.getRame_nb_passenger() << " - people : " << station.getStation_nb_people() << endl;
+            auto tempsAct = chrono::steady_clock::now();
+            auto tempsPasse = chrono::duration_cast<chrono::seconds>(tempsAct - chronometre).count();
+            if (tempsPasse >= 5) 
+            {
+            std::cout << "Rame " << id  << " - Position : (" << rame.getRame_x() << "," << rame.getRame_y() << ") - Direction : station " << idx_station + 1 << " - Vitesse : " << rame.getRame_speed() << " - Passager : " << rame.getRame_nb_passenger() << "/" << NB_MAX_PERSONNE_RAME << endl;
+            chronometre = tempsAct;
+            }
+
         }
 
         // Pause pour simuler un déplacement réaliste
