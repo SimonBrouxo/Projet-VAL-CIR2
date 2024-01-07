@@ -118,7 +118,7 @@ class Superviseur {
 
 // Prototypes des fonctions
 float distance(Vector2f& v1, Vector2f& v2);
-void moveRame(int id, float x, float y, float speed, int nb_passenger, const vector<float>& coord_x_s, const vector<float>& coord_y_s, vector<Vector2f>& ramePositions);
+void moveRame(int id, float x, float y, float speed, int nb_passenger, const vector<float>& coord_x_s, const vector<float>& coord_y_s, vector<Vector2f>& ramePositions, Station& station);
 void entrerPersonnesRame(Rame& rame);
 void sortirPersonnesRame(Rame& rame);
 void entrerPersonnesStation(Station& station);

@@ -180,13 +180,8 @@ mutex peopleMutex;
 void entrerPersonnesRame(Rame& rame) 
 {
 	lock_guard<mutex> lock(peopleMutex);
-	int nbPersonnes = rand() % NB_MAX_PERSONNE_RAME + 1;
+	int nbPersonnes = rand() % (NB_MAX_PERSONNE_RAME - rame.getRame_nb_passenger() + 1); // MAX - random pour ne pas dépassé la limite de passagers
 	rame.setRame_nb_passenger(rame.getRame_nb_passenger() + nbPersonnes);
-	if (rame.getRame_nb_passenger() > NB_MAX_PERSONNE_RAME) 
-	{
-		nbPersonnes = 0;
-	}
-
 	cout << "Rame " << rame.getRame_id() << " : +" << nbPersonnes << endl;
 }
 
@@ -194,12 +189,8 @@ void entrerPersonnesRame(Rame& rame)
 void sortirPersonnesRame(Rame& rame) 
 {
 	lock_guard<mutex> lock(peopleMutex);
-	int nbPersonnes = rand() % NB_MAX_PERSONNE_RAME + 1;
+	int nbPersonnes = rand() % (rame.getRame_nb_passenger() + 1);
 	rame.setRame_nb_passenger(rame.getRame_nb_passenger() - nbPersonnes);
-	if (rame.getRame_nb_passenger() == 0)
-	{
-		nbPersonnes = 0;
-	}
 
 	cout << "Rame " << rame.getRame_id() << " : -" << nbPersonnes << endl;
 }

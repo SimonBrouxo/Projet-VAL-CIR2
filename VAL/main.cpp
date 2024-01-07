@@ -32,7 +32,7 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
 
         // Vérifier si la rame est à la station et attendre si nécessaire
         if (enStation) {
-            cout << endl << "La rame " << rame.getRame_id() << " est arrivé à la station " << station.getStation_id() << endl;
+            cout << endl << "La rame " << rame.getRame_id() << " est arrivé à la station " << idx_station + 1 << endl;
             sortirPersonnesRame(rame);
             entrerPersonnesRame(rame);
             //entrerPersonnesStation(station);
