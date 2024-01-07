@@ -14,28 +14,24 @@ Station::Station(string noun, int id, float x, float y, int nb_people) {
 	this->nb_people = nb_people;
 }
 
-void Station::setStation_noun() {
+void Station::setStation() {
 	cout << "Nom de la station : ";
-	string noun;
-	getline(cin,noun);
+	cin >> noun;
+	cout << "Numéro de la station : ";
+	cin >> id;
+	cout << "Position de la station : ";
+	cin >> pos_x >> pos_y;
+	/*cout << "Nombre de personne dans la station : ";
+	cin >> nb_people;*/
+	cout << endl;
 }
 
 string Station::getStation_noun() {
 	return noun;
 }
 
-void Station::setStation_id() {
-	cout << "Numéro de la station : ";
-	cin >> id;
-}
-
 int Station::getStation_id() {
 	return id;
-}
-
-void Station::setStation_xy() {
-	cout << "Position de la station : ";
-	cin >> pos_x >> pos_y;
 }
 
 float Station::getStation_x() {
@@ -50,32 +46,14 @@ Vector2f Station::getStation_xy() {
 	return Vector2f(pos_x, pos_y);
 }
 
-void Station::setStation_nb_people( int new_nb_people) {
-	nb_people = new_nb_people;
-}
+//void Station::setStation_nb_people( int new_nb_people) {
+//	nb_people = new_nb_people;
+//}
 
 int Station::getStation_nb_people(){
 	return nb_people;
 }
 
-void Station::setStation() {
-	cout << "Nom de la station : ";
-	cin >> noun;
-	cout << "Numéro de la station : ";
-	cin >> id;
-	cout << "Position de la station : ";
-	cin >> pos_x >> pos_y;
-	/*cout << "Nombre de personne dans la station : ";
-	cin >> nb_people;*/
-	cout << endl;
-}
-
-void Station::printStation_stats() {
-	cout << "La station " << getStation_noun() <<
-		" numéro " << getStation_id() <<
-		" en (" << getStation_x() << "," << getStation_y() << ")" <<
-		" regroupe " << getStation_nb_people() << " personnes." << endl;
-}
 
 
 /**********************************************************************************/
@@ -91,9 +69,12 @@ Rame::Rame(int id, float x, float y, float speed, int nb_passenger) {
 	this->nb_passenger = nb_passenger;
 }
 
-void Rame::setRame_id() {
+void Rame::setRame() {
 	cout << "Numéro de la rame : ";
 	cin >> id;
+	cout << "Nombre de passagers : ";
+	cin >> nb_passenger;
+	cout << endl;
 }
 
 int Rame::getRame_id() {
@@ -129,21 +110,6 @@ int Rame::getRame_nb_passenger() {
 	return nb_passenger;
 }
 
-void Rame::setRame() {
-	cout << "Numéro de la rame : ";
-	cin >> id;
-	cout << "Nombre de passagers : ";
-	cin >> nb_passenger;
-	cout << endl;
-}
-
-void Rame::printRame_stats() {
-	cout <<
-		"La rame " << getRame_id() <<
-		" en : (" << getRame_x() << "," << getRame_y() << ")" <<
-		" se déplace à " << getRame_speed() << "km/h" <<
-		" avec " << getRame_nb_passenger() << " passagers." << endl;
-}
 
 
 /**********************************************************************************/
@@ -194,10 +160,10 @@ void sortirPersonnesRame(Rame& rame)
 }
 
 // Fonction pour gérer l'entrée des personnes dans une station
-void entrerPersonnesStation(Station& station) 
-{
-	lock_guard<mutex> lock(peopleMutex);
-	int nbPersonnes = rand() % (NB_MAX_PERSONNE_STATION + 1); // Nombre aléatoire de personnes à entrer dans la station
-	station.setStation_nb_people(station.getStation_nb_people() + nbPersonnes);
-	cout << station.getStation_id() << " : +" << nbPersonnes << endl;
-}
+//void entrerPersonnesStation(Station& station) 
+//{
+//	lock_guard<mutex> lock(peopleMutex);
+//	int nbPersonnes = rand() % (NB_MAX_PERSONNE_STATION + 1); // Nombre aléatoire de personnes à entrer dans la station
+//	station.setStation_nb_people(station.getStation_nb_people() + nbPersonnes);
+//	cout << station.getStation_id() << " : +" << nbPersonnes << endl;
+//}

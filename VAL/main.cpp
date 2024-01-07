@@ -1,10 +1,16 @@
 #include "VAL.hpp"
 
+bool keepRunning = true;
 mutex keepRunningMutex;
 
-bool keepRunning = true;
 
 
+/**********************************************************************************/
+/*******************************      Thread      *********************************/
+/**********************************************************************************/
+
+
+// Thread qui va gérer les coordonnées des rames pendant les déplacements, en donnant des inforamtions sur les rames et les stations du métro
 void moveRame(int id, float x, float y, float speed, int nb_passenger, const vector<float>& coord_x_s, const vector<float>& coord_y_s, vector<Vector2f>& ramePositions, vector<Station>& stations)
 {
     srand(time(NULL));
@@ -13,7 +19,7 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
     // On créé une rame quand le thread se lance
     Rame rame(id, x, y, speed, nb_passenger);
 
-    int idx_station = 0;
+    int idx_station = 0; // on va définir un indexe pour évaluer chaque stations selon une rame
 
     float acceleration = 0.03f;
     float deceleration = 0.05f;
@@ -21,6 +27,7 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
     float vitesseMin = 0.3f;
     int tempsAttente = 3;
     bool enStation = false;
+
     auto chronometre = chrono::steady_clock::now();
 
 
@@ -39,7 +46,7 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
             entrerPersonnesRame(rame);
             //entrerPersonnesStation(station);
             cout << endl;
-            std::this_thread::sleep_for(chrono::seconds(tempsAttente));
+            std::this_thread::sleep_for(chrono::seconds(tempsAttente)); // on reste 3 secondes en station
             enStation = false;
         }
 
@@ -107,10 +114,18 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
 
         {
             unique_lock<mutex> lock(keepRunningMutex);
-            ramePositions[id - 1] = sf::Vector2f(rame.getRame_x(), rame.getRame_y());
+            ramePositions[id - 1] = Vector2f(rame.getRame_x(), rame.getRame_y());
         }
     }
 }
+
+
+
+/**********************************************************************************/
+/*******************************      Main      ***********************************/
+/**********************************************************************************/
+
+
 
 int main()
 {
@@ -196,7 +211,7 @@ int main()
     // Création des threads pour chaque rame
     for (int i = 0; i < nbRame; i++)
     {
-        // On attends 10 secondes avant de lancer une autre rame
+        // Création de threads pout gérer le déplacement de chaque rames toutes les 10 secondes
         std::this_thread::sleep_for(chrono::seconds(10));
         threadsRame.emplace_back([&]() { moveRame(i, coord_x_s[0], coord_y_s[0], 0.8f, 0, coord_x_s, coord_y_s, ramePositions,stations); });
     }
