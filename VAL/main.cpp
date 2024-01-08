@@ -102,7 +102,7 @@ void moveRame(int id, float x, float y, float speed, int nb_passenger, const vec
             cout << "Rame " << id  << 
                     " - Position : ("  << static_cast<int>(round(rame.getRame_x())) << "," << static_cast<int>(round(rame.getRame_y())) << // on utilise static cast pour garder des nombres entiers
                     ") - Direction : " << stations[idx_station].getStation_noun() << " (" << idx_station + 1 << // on donne la prochaine station
-                    ") - Vitesse : "   << setprecision(2) << rame.getRame_speed() << // on affiche la vitesse avec deux chiffres après la virgule (setprecision) même si la vitesse est un entier (fixed)
+                    ") - Vitesse : "   << fixed << setprecision(2) << rame.getRame_speed() << // on affiche la vitesse avec deux chiffres après la virgule (setprecision) même si la vitesse est un entier (fixed)
                     " - Passager : "   << rame.getRame_nb_passenger() << "/" << NB_MAX_PERSONNE_RAME << endl; // on affiche le nombre de passagers dans la rame
             chronometre = tempsAct;
             }
